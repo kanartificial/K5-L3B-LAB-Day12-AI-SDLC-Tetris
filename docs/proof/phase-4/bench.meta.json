@@ -1,0 +1,16 @@
+{
+  "browser": "chrome.exe",
+  "headless": true,
+  "window": [
+    1280,
+    720
+  ],
+  "viewport": [
+    1262,
+    624
+  ],
+  "seed": 42,
+  "warmup_s": 3.0,
+  "duration_s": 30.0,
+  "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36"
+}

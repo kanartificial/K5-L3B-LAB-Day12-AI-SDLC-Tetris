@@ -29,9 +29,35 @@
 - **Một lần AI sai và cách phát hiện:** test lát Quán do AI viết truyền `fresh` dạng số nguyên thẳng vào runner, bỏ qua `read_inventory`. Test xanh nhưng không phản ánh đường bàn giao thật. QA phát hiện bằng smoke ticket (`gather --inventory-out` → `quan --inventory --ticks 0`), sau đó viết test hồi quy và xác nhận test fail 5/14 trên HEAD cũ.
 - **1 hành động cho Phase 4:** `python tools/smoke_p3.py integration day` phải đạt trên `main` trước khi bắt đầu việc tiếp. Mọi điều kiện skip theo version phải viết dạng `>=`/`in (...)`, không dùng `==`. Mỗi lát đẩy commit nhỏ kèm kết quả test trong mô tả. **Người nhận:** @TranHa161 (QA) chạy smoke và chặn tag nếu đỏ. Integrator @kanartificial từ chối merge khi commit không ghi kết quả test. @ThuThaoVuong đính ảnh hoặc log `ui_drive` cho mỗi commit UI.
 
-## Phase 4 (cuối)
-- Rà lại hành động Phase 2: đã làm chưa? vì sao?
-- Điều tốt / điều tệ:
-- Số liệu: số commit theo người, cách đọc code của nhau, token theo người:
-- Một lần AI sai và cách nhóm phát hiện:
-- Nếu làm lại, đổi gì:
+## Phase 4 (cuối): phát hành v1.0.0
+> Điều phối retro: @TranHa161. Viết từ bằng chứng trong repo (git log, `docs/proof/`, `docs/verification/`). Mỗi người đọc lại và bổ sung phần của mình trong `docs/members/`.
+
+### Rà lại hành động đã chốt
+| Hành động | Chốt ở | Đã làm? | Bằng chứng / vì sao |
+|---|---|---|---|
+| Chạy chơi thử UI tự động + `unittest` trước khi đẩy thay đổi UI, dán kết quả vào commit (@ThuThaoVuong, @TranHa161 kiểm lại) | P2 | **P3: không. P4: có, nhưng do QA làm** | P3: hai commit `update ui phase 3` không kèm log `ui_drive`. P4: thay đổi UI (cảnh báo, tương phản cao) nằm trong `9c1885e` kèm `tools/playtest_warnings.py`, 4/4 ca có ảnh. Người làm là QA chứ không phải chủ module UI, nên thói quen vẫn chưa thành của người viết UI. |
+| Nhắc gắn tag 5 phút trước hạn (@kanartificial) | P2 | Có | Tag `phase-2`, `phase-3` đã đẩy, mỗi tag kèm bằng chứng của đúng commit đó. |
+| Smoke tích hợp phải đạt trên `main` trước việc tiếp; QA chặn tag nếu đỏ | P3 | Có | `tools/smoke_p3.py all` 29/29 và tất định 18/18 trên `9c1885e`, trước khi gắn `phase-4`. |
+| Điều kiện skip theo version viết `>=` / `in (...)`, không dùng `==` | P3 | Có, sau một lần trượt | P2/P3 đổi sang `in (...)`. Test P4 mới viết bị AI viết lại thành `== "1.3"`. Phát hiện khi viết chính retro này và đã đổi sang `>= (1, 3)`. |
+| Commit nhỏ kèm kết quả test; Integrator từ chối merge khi thiếu | P3 | **Chưa đều** | Commit của QA ghi kết quả test trong mô tả. Các commit `update ai log`, `update file md` (P4) không ghi gì và vẫn vào `main`, vì nhóm đẩy thẳng `main` nên không có bước chặn. |
+
+### Điều làm tốt
+- Mỗi phase có ma trận AC → bằng chứng → kết quả gắn với commit cụ thể (`docs/verification/phase-1..4.md`). Bằng chứng tự sinh bằng script, không chép tay.
+- Test hộp đen viết trước theo ticket (P2: 30 test, P3: 14, P4: 10) và chạy qua `headless_cmd` / `bench_cmd` / `soak_cmd`, nên đổi nội bộ không làm vỡ hợp đồng. Cả repo hiện có 129 test, 0 skip.
+- Hai lần đổi contract lớn (1.1 → 1.2 kho cá thể, 1.2 → 1.3) đều giữ được regression P1–P3 nhờ migrate fixture bằng helper thay vì viết lại test.
+- Tất định byte-cho-byte suốt 4 phase. Soak 10 Ngày cho kết quả giống hệt nhau giữa hai lần chạy.
+
+### Điều cần sửa
+- Đóng góp lệch: commit không merge theo người là TranHa161 10, kanartificial 9, ThuThaoVuong 4, KimY22-it 3. Việc tích hợp và QA dồn vào một người, nên khi người đó vắng thì không ai chạy smoke.
+- Lỗi tích hợp chỉ lộ ở cuối phase (P3: Quán từ chối `fresh` dạng `Fraction`, Shop nhận id). Chơi thử UI thật cũng chỉ làm ở cuối (P2).
+- Đẩy thẳng `main` không có review. `main` từng đỏ 18 test (P3) mà không ai biết cho tới lúc QA kiểm.
+- Đo token chưa đều: chỉ @kanartificial ghi số token, các dòng khác ghi “chưa đo”.
+
+### Một lỗi AI đã mắc và cách nhóm xác minh
+Ở P3, test lát Quán do AI viết truyền `fresh` dạng số nguyên thẳng vào runner, bỏ qua `read_inventory`. Test xanh nhưng đường bàn giao thật thì hỏng. Nhóm xác minh bằng smoke hai tiến trình đúng ví dụ ticket (`gather --inventory-out` → `quan --inventory --ticks 0`), sau đó viết test hồi quy và chạy trên commit cũ để chắc test **fail 5/14 trước khi sửa**. Ở P4 thì AI lặp lại lỗi `== "1.3"` mà retro vừa cấm, và chỉ được phát hiện khi người đọc lại diff.
+
+### Nếu làm lại / hành động tiếp theo
+1. Chạy smoke đầu-cuối (2 tiến trình + `day`) từ **phút đầu** của mỗi phase, coi đó là “test đỏ” cần làm xanh, không để tới cuối. Người nhận: QA.
+2. Làm theo nhánh ngắn + PR, mỗi PR cần một người khác chạy `contract-verify` rồi mới merge. Người nhận: Integrator.
+3. Người viết UI tự chạy `tools/playtest_warnings.py` / `ui_drive.mjs` trước khi đẩy, không chờ QA. Người nhận: @ThuThaoVuong.
+4. Mỗi lần dùng AI ghi token ước tính và chỗ AI sai vào `docs/ai-usage-log.md` ngay lúc làm. Người nhận: cả nhóm.

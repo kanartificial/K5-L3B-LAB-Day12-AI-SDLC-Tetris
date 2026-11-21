@@ -1,6 +1,6 @@
 # Chơi thử 3 cảnh báo — thường & tương phản cao (AC-P4-03)
 
-- Commit: `97a7dc6` · trình duyệt `chrome.exe` headless · viewport 1280×720 · 4.4 s
+- Commit: `9c1885e` · trình duyệt `chrome.exe` headless · viewport 1280×720 · 4.2 s
 - Lệnh: `python3 tools/playtest_warnings.py`
 
 | Ca | Tương phản cao | Banner hiện (chữ + biểu tượng) | Kết quả | Ảnh |

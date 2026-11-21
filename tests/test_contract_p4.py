@@ -27,7 +27,11 @@ def contract():
         return json.load(f)
 
 
-V13 = contract().get("contract_version") == "1.3"
+def _ver(v):
+    return tuple(int(x) for x in str(v).split("."))
+
+
+V13 = _ver(contract().get("contract_version", "1.0")) >= (1, 3)  # >= thay vì ==: phase sau không tự skip
 need_v13 = unittest.skipUnless(V13, "chờ contract_version 1.3 (Phase 4)")
 
 
@@ -47,7 +51,7 @@ def run(key, *args, timeout=300):
 class ManifestV13(unittest.TestCase):
     def test_p4_01_manifest_declares_bench_and_soak_cmd(self):
         c = contract()
-        self.assertEqual(c["contract_version"], "1.3")
+        self.assertGreaterEqual(_ver(c["contract_version"]), (1, 3))
         for key in ("bench_cmd", "soak_cmd", "run_cmd", "headless_cmd"):
             self.assertIsInstance(c.get(key), str, key)
             self.assertTrue(c[key].strip(), key)
