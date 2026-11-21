@@ -1,0 +1,140 @@
+# commit ece548f (+ thay đổi chưa commit)
+$ PYTHONPATH=tests;. python3 -m unittest discover -s tests -v
+test_p2_05_day_scenario_rejections (test_contract_p2.DayCli.test_p2_05_day_scenario_rejections) ... skipped 'chờ contract_version 1.1 (Phase 2)'
+test_p2_05_days_flag_domain (test_contract_p2.DayCli.test_p2_05_days_flag_domain) ... skipped 'chờ contract_version 1.1 (Phase 2)'
+test_p2_05_ticket_example_scenario_accepted (test_contract_p2.DayCli.test_p2_05_ticket_example_scenario_accepted) ... skipped 'chờ contract_version 1.1 (Phase 2)'
+test_p2_06_day_start_sequence_and_d1_plan (test_contract_p2.DayLoop.test_p2_06_day_start_sequence_and_d1_plan) ... skipped 'chờ contract_version 1.1 (Phase 2)'
+test_p2_06_faint_still_opens_quan_with_empty_stock (test_contract_p2.DayLoop.test_p2_06_faint_still_opens_quan_with_empty_stock) ... skipped 'chờ contract_version 1.1 (Phase 2)'
+test_p2_06_five_days_publish_d1_to_d5 (test_contract_p2.DayLoop.test_p2_06_five_days_publish_d1_to_d5) ... skipped 'chờ contract_version 1.1 (Phase 2)'
+test_p2_06_one_day_completes_within_budget_and_20s (test_contract_p2.DayLoop.test_p2_06_one_day_completes_within_budget_and_20s) ... skipped 'chờ contract_version 1.1 (Phase 2)'
+test_p2_02_fish_stay_in_species_band_spawn_on_schedule_cap_12 (test_contract_p2.FishP2.test_p2_02_fish_stay_in_species_band_spawn_on_schedule_cap_12) ... skipped 'chờ contract_version 1.1 (Phase 2)'
+test_p2_02_initial_8_schools_distinct_spawn_points (test_contract_p2.FishP2.test_p2_02_initial_8_schools_distinct_spawn_points) ... skipped 'chờ contract_version 1.1 (Phase 2)'
+test_p2_02_random_fish_false_freezes_fixture (test_contract_p2.FishP2.test_p2_02_random_fish_false_freezes_fixture) ... skipped 'chờ contract_version 1.1 (Phase 2)'
+test_p2_02_seed_changes_fish (test_contract_p2.FishP2.test_p2_02_seed_changes_fish) ... skipped 'chờ contract_version 1.1 (Phase 2)'
+test_p2_03_day1_layout_only_m1 (test_contract_p2.MonsterP2.test_p2_03_day1_layout_only_m1) ... skipped 'chờ contract_version 1.1 (Phase 2)'
+test_p2_03_hit_loses_hp_half_hold_lifo_then_invulnerable (test_contract_p2.MonsterP2.test_p2_03_hit_loses_hp_half_hold_lifo_then_invulnerable) ... skipped 'chờ contract_version 1.1 (Phase 2)'
+test_p2_03_monster_faint_empties_hold (test_contract_p2.MonsterP2.test_p2_03_monster_faint_empties_hold) ... skipped 'chờ contract_version 1.1 (Phase 2)'
+test_p2_08_pause_freezes_gameplay (test_contract_p2.PauseP2.test_p2_08_pause_freezes_gameplay) ... skipped 'chờ contract_version 1.1 (Phase 2)'
+test_p2_08_paused_snapshot_state (test_contract_p2.PauseP2.test_p2_08_paused_snapshot_state) ... skipped 'chờ contract_version 1.1 (Phase 2)'
+test_p2_04_customers_every_900_ticks_fill_lowest_table (test_contract_p2.QuanP2.test_p2_04_customers_every_900_ticks_fill_lowest_table) ... skipped 'chờ contract_version 1.1 (Phase 2)'
+test_p2_04_new_kinds_accepted_in_inventory (test_contract_p2.QuanP2.test_p2_04_new_kinds_accepted_in_inventory) ... skipped 'chờ contract_version 1.1 (Phase 2)'
+test_p2_04_standalone_quan_uses_new_dishes (test_contract_p2.QuanP2.test_p2_04_standalone_quan_uses_new_dishes) ... skipped 'chờ contract_version 1.1 (Phase 2)'
+test_p2_04_tick0_layout (test_contract_p2.QuanP2.test_p2_04_tick0_layout) ... skipped 'chờ contract_version 1.1 (Phase 2)'
+test_p2_07_buy_oxygen_then_fail_funds_and_unknown (test_contract_p2.ShopP2.test_p2_07_buy_oxygen_then_fail_funds_and_unknown) ... skipped 'chờ contract_version 1.1 (Phase 2)'
+test_p2_07_shop_auto_closes_after_600_ticks (test_contract_p2.ShopP2.test_p2_07_shop_auto_closes_after_600_ticks) ... skipped 'chờ contract_version 1.1 (Phase 2)'
+test_p2_07_upgrade_applies_from_next_day (test_contract_p2.ShopP2.test_p2_07_upgrade_applies_from_next_day) ... skipped 'chờ contract_version 1.1 (Phase 2)'
+test_p2_01_day_plan_matches_ticket_and_recipes (test_contract_p2.StandardData.test_p2_01_day_plan_matches_ticket_and_recipes) ... skipped 'chờ contract_version 1.1 (Phase 2)'
+test_p2_01_gather_constants (test_contract_p2.StandardData.test_p2_01_gather_constants) ... skipped 'chờ contract_version 1.1 (Phase 2)'
+test_p2_01_menu_six_dishes_as_data (test_contract_p2.StandardData.test_p2_01_menu_six_dishes_as_data) ... skipped 'chờ contract_version 1.1 (Phase 2)'
+test_p2_01_monsters (test_contract_p2.StandardData.test_p2_01_monsters) ... skipped 'chờ contract_version 1.1 (Phase 2)'
+test_p2_01_nodes_n1_n6 (test_contract_p2.StandardData.test_p2_01_nodes_n1_n6) ... skipped 'chờ contract_version 1.1 (Phase 2)'
+test_p2_01_quan_layout (test_contract_p2.StandardData.test_p2_01_quan_layout) ... skipped 'chờ contract_version 1.1 (Phase 2)'
+test_p2_01_shop_upgrades (test_contract_p2.StandardData.test_p2_01_shop_upgrades) ... skipped 'chờ contract_version 1.1 (Phase 2)'
+test_dive_and_surface_events_and_oxygen_drain_refill (test_gather_p1.GatherSlice1OxygenAndFaint.test_dive_and_surface_events_and_oxygen_drain_refill) ... ok
+test_faint_loses_hold_lifo_writes_empty_inventory_and_stops_step (test_gather_p1.GatherSlice1OxygenAndFaint.test_faint_loses_hold_lifo_writes_empty_inventory_and_stops_step)
+Máu về 0 -> choke -> faint (lost LIFO) -> gather_end(fainted, items={}), ghi kho rỗng, dừng bước. ... ok
+test_oxygen_empty_and_choke_at_t_plus_59 (test_gather_p1.GatherSlice1OxygenAndFaint.test_oxygen_empty_and_choke_at_t_plus_59)
+Chạm oxy 0 ở tick t và ở dưới nước liên tục -> ngạt lần đầu đúng ở t+59. ... ok
+test_surface_on_would_be_choke_tick_prevents_choke (test_gather_p1.GatherSlice1OxygenAndFaint.test_surface_on_would_be_choke_tick_prevents_choke)
+Nổi lên đúng bước đáng lẽ ngạt thì hồi oxy, reset ngạt và không mất Máu. ... ok
+test_catch_at_surface_or_empty_range_no_event_no_cooldown (test_gather_p1.GatherSlice2HarvestCatchAndDock.test_catch_at_surface_or_empty_range_no_event_no_cooldown) ... ok
+test_catch_fish_tiebreak_cooldown_and_remove (test_gather_p1.GatherSlice2HarvestCatchAndDock.test_catch_fish_tiebreak_cooldown_and_remove) ... ok
+test_catch_hold_full_does_not_try_other_fish_and_keeps_cooldown (test_gather_p1.GatherSlice2HarvestCatchAndDock.test_catch_hold_full_does_not_try_other_fish_and_keeps_cooldown) ... ok
+test_dock_precedes_harvest_and_last_tick_actions_saved_to_inventory (test_gather_p1.GatherSlice2HarvestCatchAndDock.test_dock_precedes_harvest_and_last_tick_actions_saved_to_inventory) ... ok
+test_harvest_boundary_tiebreak_regrow_and_immediate_reharvest (test_gather_p1.GatherSlice2HarvestCatchAndDock.test_harvest_boundary_tiebreak_regrow_and_immediate_reharvest) ... ok
+test_harvest_hold_full_and_underwater_ignored (test_gather_p1.GatherSlice2HarvestCatchAndDock.test_harvest_hold_full_and_underwater_ignored) ... ok
+test_state_input_and_clean_stop (test_live.LiveServerTest.test_state_input_and_clean_stop) ... ok
+test_bad_frames_raise (test_python_starter_units.Units.test_bad_frames_raise) ... ok
+test_catch_is_a_v10_button_and_attack_is_not (test_python_starter_units.Units.test_catch_is_a_v10_button_and_attack_is_not) ... ok
+test_id_allocator_continues_after_max (test_python_starter_units.Units.test_id_allocator_continues_after_max) ... ok
+test_id_sorting (test_python_starter_units.Units.test_id_sorting) ... ok
+test_input_edges_and_inherit (test_python_starter_units.Units.test_input_edges_and_inherit) ... ok
+test_live_inputs_keep_fast_tap_edge (test_python_starter_units.Units.test_live_inputs_keep_fast_tap_edge) ... ok
+test_session_steps_gather_and_dock (test_python_starter_units.Units.test_session_steps_gather_and_dock) ... ok
+test_con_01_ticks_zero_and_end_line (test_smoke_p1.Contract.test_con_01_ticks_zero_and_end_line) ... ok
+test_con_02_deterministic_bytes (test_smoke_p1.Contract.test_con_02_deterministic_bytes) ... ok
+test_con_03_bad_input_exit_2 (test_smoke_p1.Contract.test_con_03_bad_input_exit_2) ... Exception in thread Thread-50 (_readerthread):
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Python\pythoncore-3.14-64\Lib\threading.py", line 1082, in _bootstrap_inner
+    self._context.run(self.run)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Python\pythoncore-3.14-64\Lib\threading.py", line 1024, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Python\pythoncore-3.14-64\Lib\subprocess.py", line 1614, in _readerthread
+    buffer.append(fh.read())
+                  ~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 23, in decode
+    return codecs.charmap_decode(input,self.errors,decoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'charmap' codec can't decode byte 0x9d in position 35: character maps to <undefined>
+Exception in thread Thread-52 (_readerthread):
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Python\pythoncore-3.14-64\Lib\threading.py", line 1082, in _bootstrap_inner
+    self._context.run(self.run)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Python\pythoncore-3.14-64\Lib\threading.py", line 1024, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Python\pythoncore-3.14-64\Lib\subprocess.py", line 1614, in _readerthread
+    buffer.append(fh.read())
+                  ~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 23, in decode
+    return codecs.charmap_decode(input,self.errors,decoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'charmap' codec can't decode byte 0x9d in position 35: character maps to <undefined>
+ok
+test_con_03_old_and_future_modes_rejected (test_smoke_p1.Contract.test_con_03_old_and_future_modes_rejected) ... ok
+test_gather_snapshot_has_gather_fields (test_smoke_p1.Contract.test_gather_snapshot_has_gather_fields) ... ok
+test_scenario_out_of_domain_exit_2 (test_smoke_p1.Contract.test_scenario_out_of_domain_exit_2) ... Exception in thread Thread-72 (_readerthread):
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Python\pythoncore-3.14-64\Lib\threading.py", line 1082, in _bootstrap_inner
+    self._context.run(self.run)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Python\pythoncore-3.14-64\Lib\threading.py", line 1024, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Python\pythoncore-3.14-64\Lib\subprocess.py", line 1614, in _readerthread
+    buffer.append(fh.read())
+                  ~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 23, in decode
+    return codecs.charmap_decode(input,self.errors,decoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'charmap' codec can't decode byte 0x9d in position 23: character maps to <undefined>
+ok
+test_inv_01_gather_writes_inventory_quan_reads_it (test_smoke_p1.Integration.test_inv_01_gather_writes_inventory_quan_reads_it)
+Ví dụ smoke test trong PRD-0 mục G: cập bến ở tick 0, quán đọc kho đúng nội dung. ... ok
+test_inv_01_not_written_when_tick_limit_first (test_smoke_p1.Integration.test_inv_01_not_written_when_tick_limit_first) ... ok
+test_inv_bad_schema_exit_2 (test_smoke_p1.Integration.test_inv_bad_schema_exit_2) ... ok
+test_inventory_and_scenario_stock_conflict (test_smoke_p1.Integration.test_inventory_and_scenario_stock_conflict) ... ok
+test_inventory_flags_mode_mismatch_exit_2 (test_smoke_p1.Integration.test_inventory_flags_mode_mismatch_exit_2) ... ok
+test_move_01_swim_speed_after_ramp (test_smoke_p1.Movement.test_move_01_swim_speed_after_ramp)
+Bỏ 6 tick tăng tốc rồi đo 60 tick: quãng ≈ swim_speed × 1 s (±0.1). Ngang, xuống, chéo (không nhanh hơn). ... ok
+test_move_02_heading_positive_is_down (test_smoke_p1.Movement.test_move_02_heading_positive_is_down) ... ok
+test_move_03_edge_clamp (test_smoke_p1.Movement.test_move_03_edge_clamp)
+Chặn từng mép của vùng nước, kể cả d không âm (không bay lên khỏi mặt nước) và đáy d = 30. ... ok
+test_move_mep_vel_ve_0 (test_smoke_p1.Movement.test_move_mep_vel_ve_0) ... ok
+test_move_ramp_doi_huong_trong_tran (test_smoke_p1.Movement.test_move_ramp_doi_huong_trong_tran)
+Đảo từ +speed sang -speed: vận tốc chạm mục tiêu sau tối đa ramp_max_ticks tick kể từ lúc đổi input. ... ok
+test_time_ends_gather_and_keeps_hold (test_smoke_p1.Movement.test_time_ends_gather_and_keeps_hold) ... ok
+test_khoi_sai_mode_exit_2 (test_smoke_p1.ScenarioModes.test_khoi_sai_mode_exit_2) ... ok
+test_quan_fixture_khong_hop_le_exit_2 (test_smoke_p1.ScenarioModes.test_quan_fixture_khong_hop_le_exit_2) ... ok
+test_quan_player_vel_hop_le (test_smoke_p1.ScenarioModes.test_quan_player_vel_hop_le) ... ok
+test_good (test_team_check.TeamCheck.test_good) ... ok
+test_template_is_rejected (test_team_check.TeamCheck.test_template_is_rejected) ... FAIL
+test_too_few_members (test_team_check.TeamCheck.test_too_few_members) ... ok
+test_wrong_size_duplicate_and_outsider (test_team_check.TeamCheck.test_wrong_size_duplicate_and_outsider) ... ok
+
+======================================================================
+FAIL: test_template_is_rejected (test_team_check.TeamCheck.test_template_is_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Admin\Documents\AI20K_LAB\K5-L3B-LAB-Day12-AI-SDLC-Tetris\tests\test_team_check.py", line 29, in test_template_is_rejected
+    self.assertTrue(check_team.validate(m, 4))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+----------------------------------------------------------------------
+Ran 72 tests in 20.765s
+
+FAILED (failures=1, skipped=30)
