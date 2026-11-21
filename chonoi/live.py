@@ -161,6 +161,7 @@ class LiveGame:
             snap = self.session.snapshot()
             phase = snap.get("phase", self.mode)
             snap["meta"] = self.tuning.get(phase, {})
+            snap["menu"] = self.tuning.get("menu", {})  # UI: EveningIntro tính món nấu được từ dữ liệu
             snap["events"] = list(self.events)
             snap["finished"] = self.session.done
             snap["reason"] = (
