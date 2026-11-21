@@ -1,8 +1,10 @@
-# kanartificial — phản tư cá nhân (≤ 200 từ)
+# Khổng Ngọc Anh (kanartificial) — phản tư cá nhân (≤ 200 từ)
 
 - **Tôi đã làm:**
-  - **Phase 1:** Thiết lập `TEAM.md` (`2ec6272`), chốt `docs/contracts/` v1.0 (`78bf8a3`), triển khai Lát 1–2 `chonoi/sim/gather.py` + `tests/test_gather_p1.py` (`f020f68`), kế hoạch P1/P2 (`ece548f`, `a2634c6`), `tests/test_integration_p1.py`, `README.md`, bằng chứng Phase 1 (`6f0fdcc`) và gắn tag `phase-1`.
-  - **Phase 2:** Nâng Contract v1.1 (`game.contract.json`, `chonoi/{contract,inventory,inputs,scenario,headless,live}.py`, `docs/contracts/`), cá bơi/sinh + Cá Sấu Năm Chèo (`chonoi/sim/gather.py`), `ShopSim` + `DaySession` + `pause` (`chonoi/sim/shop.py`, `chonoi/runner.py`), `tests/test_gather_p2.py`, cập nhật `AGENTS.md` và 2 skill nhóm trong `.agents/skills/`.
-- **Tôi đã review:** Rà `chonoi/sim/quan.py` (`8ad8880`), `chonoi/play_campaign.py` (`2df9c22`) và `tests/test_contract_p2.py` (`957e58c`); bổ sung `vel` và `allowed_dishes` cho `QuanSim`.
-- **AI sai ở đâu và tôi phát hiện thế nào:** Ở Phase 1, AI tạo dư một biến `inp` ghi đè trong test và gặp lỗi `test_template_is_rejected` khi `TEAM.md` đã điền thật; rà code và tách `TEMPLATE` riêng. Ở Phase 2, kiểm kỹ tick snapshot cho thấy cần chụp snapshot khi `bought` để không bỏ lỡ nâng cấp vừa mua trước `shop_done`.
-- **Điều tôi học được:** Test-first bằng `test_contract_p2.py` và chốt contract sớm giúp cả nhóm ghép 86/86 test xanh ngay lần chạy đầu.
+  - **P1:** Chốt `TEAM.md` (`2ec6272`), hợp đồng v1.0 (`78bf8a3`), `sim/gather` + `test_gather_p1` (`f020f68`), kế hoạch P1–P2 (`ece548f`, `a2634c6`), tích hợp P1 (`6f0fdcc`).
+  - **P2 (`32d1921`):** Contract v1.1, cá bơi/sinh, Cá Sấu, `ShopSim`/`DaySession`/`pause`, `test_gather_p2`, `AGENTS.md` và 2 skill nhóm.
+  - **P3 (`c4393f6`):** ADR-0001 kho cá thể, hợp đồng v1.2, adapter `inventory`/`scenario`, độ tươi chính xác 240 đơn vị (`gather`, `runner`, `shop`), `test_gather_p3`, kế hoạch P3.
+  - **P4:** Kế hoạch phát hành v1.0.0 (`docs/plan/phase-4.md`) và rà DoD bàn giao.
+- **Đã giúp & review:** Rà `sim/quan` (`8ad8880`, `2955c18`), `play_campaign` (`2df9c22`), `test_contract_p2` (`957e58c`); hỗ trợ `@KimY22-it`, `@ThuThaoVuong` khớp hợp đồng kho/snapshot.
+- **AI sai ở đâu & phát hiện:** P1: AI để dư biến `inp` và làm vỡ `test_template_is_rejected`, phát hiện qua unittest. P3: adapter trả `fresh` kiểu `Fraction` nhưng thiếu smoke 2 tiến trình với `QuanSim`, gây lỗi bàn giao mà `@TranHa161` (`0b13736`) bắt ra.
+- **Bài học:** Chốt contract sớm giúp ghép nhanh, nhưng cần commit nhỏ và chạy smoke đầu-cuối ngay khi đổi schema thay vì chỉ tin test lát.
