@@ -2,6 +2,16 @@
 
 Ghi theo từng phase. Phiên bản phát hành **v1.0.0** = Phase 4 (Test Contract v1.3).
 
+## [Chưa phát hành] — sửa sau v1.0.0 (tag `phase-4` / `v1.0.0` giữ nguyên ở `d919514`)
+
+### Sửa
+- `chonoi.play_campaign` (mục “Sáng tạo của nhóm”) không truyền `contract_version` vào `LiveGame`/`load_scenario`/`read_inventory`, nên chạy luật **v1.1** (kho đếm, không độ tươi) dù manifest là v1.3. Nay dùng version của manifest. Kiểm đầu-cuối: giỏ `I1 ca_loc 100`, `I2 bong_sung 40` → file kho → quán nhận đúng cá thể và độ tươi. Test hồi quy `test_contract_p4.PlayCampaignVersion` fail trên code cũ (`None != '1.3'`).
+
+### Tài liệu (README)
+- Cặp lệnh headless 2 tiến trình: `gather --ticks 600` không tới `gather_end` nên không ghi `catch.json`, và `quan --inventory` trả mã 2. Đổi sang `--ticks 10800` (đủ ca), có ghi chú kho rỗng khi không có input.
+- Lệnh QA ghi đúng thư mục bằng chứng Phase 4: `smoke_p3.py all --proof docs/proof/phase-4/smoke` (trước đó ghi đè `docs/proof/phase-3/`), `check_determinism.py --proof docs/proof/phase-4/determinism`.
+- Yêu cầu môi trường ghi rõ phần đã thử (Python 3.15, Chrome/Edge) và phần chưa thử (Python 3.10–3.14, Firefox/Safari).
+
 ## [v1.0.0 — Phase 4: Phát hành] (Contract v1.3) — 2026-11-21
 
 ### Contract v1.3

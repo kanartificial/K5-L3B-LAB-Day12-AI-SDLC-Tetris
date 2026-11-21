@@ -99,6 +99,26 @@ class SoakV13(unittest.TestCase):
             self.assertEqual(s._plan_payload(day), s._plan_payload(day - 5))
 
 
+class PlayCampaignVersion(unittest.TestCase):
+    def test_play_campaign_uses_manifest_contract_version(self):
+        """Hồi quy (sau v1.0.0): play_campaign từng tạo LiveGame không truyền contract_version -> chạy luật v1.1."""
+        from unittest import mock
+
+        import chonoi.play_campaign as pc
+
+        seen = {}
+
+        def fake_game(*args, **kwargs):
+            seen.update(kwargs)
+            raise KeyboardInterrupt  # dừng ngay sau khi dựng game, không mở server / trình duyệt
+
+        with mock.patch.object(pc, "LiveGame", side_effect=fake_game), \
+                mock.patch.object(pc.webbrowser, "open_new_tab") as browser:
+            pc.main()
+        self.assertEqual(seen.get("contract_version"), contract()["contract_version"])
+        browser.assert_not_called()
+
+
 class BenchFormula(unittest.TestCase):
     def test_p4_01_summarize_avg_and_one_percent_low(self):
         # 99 khung 10 ms + 1 khung 50 ms: k = max(1, ceil(1)) = 1 khung chậm nhất -> 1 / 0.05 s = 20 FPS

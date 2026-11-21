@@ -22,10 +22,13 @@ def main():
     quan_game = None
 
     try:
-        tuning = load_contract()["tuning"]
+        contract = load_contract()
+        tuning = contract["tuning"]
+        # Dùng đúng phiên bản contract (v1.2+: kho cá thể + độ tươi), không rơi về mặc định "1.1" của LiveGame.
+        version = contract.get("contract_version", "1.1")
 
         # Giai đoạn 1: Gather
-        gather_scenario = load_scenario(None, "gather", tuning)
+        gather_scenario = load_scenario(None, "gather", tuning, contract_version=version)
 
         gather_game = LiveGame(
             "gather",
@@ -34,6 +37,7 @@ def main():
             seed=1,
             inventory=None,
             inventory_out=str(inventory_path),
+            contract_version=version,
         )
 
         # Chỉ tạo duy nhất một server ở cổng 8000
@@ -72,7 +76,7 @@ def main():
             )
 
         # Đọc kho nguyên liệu Gather vừa xuất
-        inventory = read_inventory(str(inventory_path))
+        inventory = read_inventory(str(inventory_path), contract_version=version)
 
         print("\n=== KHO NGUYÊN LIỆU ===")
         print(inventory if inventory else "Kho trống")
@@ -81,7 +85,7 @@ def main():
         gather_game.stop()
 
         # Giai đoạn 2: tạo game Quan với kho từ Gather
-        quan_scenario = load_scenario(None, "quan", tuning)
+        quan_scenario = load_scenario(None, "quan", tuning, contract_version=version)
 
         quan_game = LiveGame(
             "quan",
@@ -90,6 +94,7 @@ def main():
             seed=1,
             inventory=inventory,
             inventory_out=None,
+            contract_version=version,
         )
 
         # Chuyển handler của server hiện tại sang game Quan

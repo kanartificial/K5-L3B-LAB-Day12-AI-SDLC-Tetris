@@ -20,8 +20,8 @@ Các chế độ khác: `--mode gather` (chỉ buổi sáng) · `--mode quan` (c
 
 | Thành phần | Yêu cầu | Dùng cho |
 |---|---|---|
-| Python | **3.10 trở lên** (không cần `pip install`) | game, test, headless, soak, bench |
-| Trình duyệt | Chrome / Chromium / Edge / Firefox / Safari bản mới | chơi |
+| Python | **3.10 trở lên** theo cú pháp code (không cần `pip install`); đã chạy thật trên 3.15 | game, test, headless, soak, bench |
+| Trình duyệt | Chrome / Edge bản mới (đã thử); Firefox / Safari chưa thử | chơi |
 | Chrome / Chromium / Edge | bất kỳ bản mới (Chromium headless) | chỉ cho **bench** |
 | Node.js ≥ 22 | tùy chọn | chỉ cho script chơi thử UI tự động (`tools/playtest_warnings.py`) |
 
@@ -50,9 +50,11 @@ Shop: bấm **MUA** (Bình oxy / Áo phao) rồi **ĐÓNG SHOP**. Shop tự đó
 # Test toàn bộ (P1–P4)
 PYTHONPATH=tests:. python3 -m unittest discover -s tests -v
 
-# Headless theo Test Contract (JSONL), 2 tiến trình nối qua file kho cá thể
-python3 -m chonoi.headless --mode gather --seed 42 --ticks 600 --out gather.jsonl --inventory-out catch.json
-python3 -m chonoi.headless --mode quan   --seed 42 --ticks 600 --out quan.jsonl --inventory catch.json
+# Headless theo Test Contract (JSONL), 2 tiến trình nối qua file kho cá thể.
+# File kho chỉ được ghi khi có gather_end: chạy đủ ca 10800 tick (180 s, ~1 s thực) hoặc cập bến bằng --inputs.
+# Không có input thì Út Sen không lấy gì, kho ghi ra là {"items":[]}.
+python3 -m chonoi.headless --mode gather --seed 42 --ticks 10800 --out gather.jsonl --inventory-out catch.json
+python3 -m chonoi.headless --mode quan   --seed 42 --ticks 600   --out quan.jsonl --inventory catch.json
 python3 -m chonoi.headless --mode day --days 5 --seed 1 --ticks 111000 --out day.jsonl
 
 # Benchmark có render (bench_cmd) — cần Chrome/Chromium/Edge; --browser PATH hoặc CHROME_PATH nếu không tự tìm thấy
@@ -61,9 +63,9 @@ python3 -m chonoi.bench --seed 42 --duration 30 --out bench.json
 # Soak headless 10 Ngày trong một tiến trình bằng bot tất định (soak_cmd)
 python3 -m chonoi.soak --seed 7 --days 10 --out soak.json
 
-# QA: smoke + tất định + chơi thử cảnh báo
-python3 tools/smoke_p3.py all
-python3 tools/check_determinism.py --proof docs/proof/phase-4
+# QA: smoke + tất định + chơi thử cảnh báo (bằng chứng ghi vào docs/proof/phase-4/)
+python3 tools/smoke_p3.py all --proof docs/proof/phase-4/smoke
+python3 tools/check_determinism.py --proof docs/proof/phase-4/determinism
 python3 tools/playtest_warnings.py
 ```
 
@@ -75,7 +77,7 @@ Xem [docs/verification/phase-4.md](docs/verification/phase-4.md) và [docs/proof
 
 ## Sáng tạo của nhóm
 
-- **Chế độ chơi nối tiếp 2 buổi trên 1 cổng trình duyệt** (`python3 -m chonoi.play_campaign`): kết thúc buổi sáng thì đọc file kho vừa xuất và chuyển thẳng sang buổi tối trên cùng cổng. Nằm riêng ở [chonoi/play_campaign.py](chonoi/play_campaign.py), **tắt hoàn toàn ở headless**, dùng nguyên `read_inventory`/`write_inventory` theo [hợp đồng kho](docs/contracts/inventory.md).
+- **Chế độ chơi nối tiếp 2 buổi trên 1 cổng trình duyệt** (`python3 -m chonoi.play_campaign`, cổng cố định 8000, tự mở trình duyệt): kết thúc buổi sáng thì đọc file kho vừa xuất (`campaign_inventory.json`) và chuyển thẳng sang buổi tối trên cùng cổng. Nằm riêng ở [chonoi/play_campaign.py](chonoi/play_campaign.py), **tắt hoàn toàn ở headless**, dùng nguyên `read_inventory`/`write_inventory` theo [hợp đồng kho](docs/contracts/inventory.md) với `contract_version` của manifest (kho cá thể + độ tươi). Bản v1.0.0 có lỗi chạy luật v1.1 ở chế độ này, đã sửa sau phát hành (xem CHANGELOG).
 - **Chế độ tương phản cao và cảnh báo có biểu tượng** chỉ nằm ở client (`chonoi/web/index.html`), không chạm luật hay JSONL.
 - Bằng chứng lõi vẫn đúng: toàn bộ test P1–P4, `tools/smoke_p3.py all` và `tools/check_determinism.py` đều đạt trên commit phát hành ([phase-4.md](docs/verification/phase-4.md)).
 
@@ -83,7 +85,7 @@ Mở rộng (`leaderboard`, phụ đề SFX, `current`, `reservations`): **khôn
 
 ## Giới hạn đã biết
 
-- Kiểm clone sạch và bench chạy trên Windows 11 (Git Bash, Python 3.15, Chrome 157 headless). Nhóm không có máy macOS/Linux để thử trực tiếp. Lệnh và mã chỉ dùng thư viện chuẩn, đường dẫn trình duyệt có sẵn cho macOS/Linux.
+- Kiểm clone sạch và bench chạy trên Windows 11 (Git Bash, Python 3.15, Chrome 157 headless). Nhóm không có máy macOS/Linux để thử trực tiếp. Lệnh và mã chỉ dùng thư viện chuẩn, đường dẫn trình duyệt có sẵn cho macOS/Linux. Python 3.10–3.14 chưa chạy thử.
 - Bench headless bị giới hạn bởi vsync của Chrome (~60 FPS). Viewport bên trong cửa sổ 1280×720 nhỏ hơn một chút do khung cửa sổ.
 - Không có âm thanh (nên không có phụ đề SFX). Hình vẽ bằng canvas, không có tài sản ngoài.
 - Bot soak chơi đơn giản (hái rau / bắt cá nông, nấu theo thứ tự đơn), chỉ để chạy dài và kiểm không crash, không phải AI chơi tối ưu.
