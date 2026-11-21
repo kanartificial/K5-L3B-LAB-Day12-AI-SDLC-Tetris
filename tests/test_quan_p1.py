@@ -76,7 +76,9 @@ class QuanPhaseOne(unittest.TestCase):
             {"tick": cooked + travel, "move": [0, 0]},
             {"tick": serve - 1, "interact": True},
         )
-        self.assertEqual([(e["tick"], e["name"]) for e in log], [
+        # v1.1 có 4 bàn (T1–T4) nên tick 1020 khi hết kho phát thêm no_dish tại bàn trống; lọc riêng vòng đời đơn C1
+        order_log = [(e["tick"], e["name"]) for e in log if e["name"] != "no_dish"]
+        self.assertEqual(order_log, [
             (first, "customer_arrived"), (first + 1, "cook_started"),
             (cooked, "dish_ready"), (cooked, "dish_picked"), (serve, "served"), (paid, "paid"),
         ])

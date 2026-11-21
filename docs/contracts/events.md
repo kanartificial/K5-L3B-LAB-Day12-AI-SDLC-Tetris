@@ -1,64 +1,39 @@
-# Hợp đồng 3: Danh sách sự kiện (Events) & Dòng `end` — v1.0
+# Hợp đồng 3: Danh sách sự kiện (Events) & Dòng `end` — v1.1
 
-Khớp **PRD Phase 1 — Mục E & Mục F**.
+Khớp **PRD Phase 2 (TICKET-02) — Mục 4.4 & 4.5** (mở rộng từ v1.0).
 
-## 1. Cấu trúc chung của một dòng event trong JSONL
+## 1. Vỏ event
 
-```json
-{"type":"event","tick":1,"phase":"gather","name":"gather","data":{"node_id":"N1","kind":"bong_dien_dien","amount":1}}
-```
+- Ở chế độ độc lập (`gather`/`quan`): `{"type":"event","tick":k,"phase":"gather"|"quan","name":...,"data":...}`.
+- Ở chế độ `day`: có thêm trường `"day": 1..5`.
+- Event đổi pha đầu Ngày 1 (`day_start`, `day_plan`, `phase_start`) phát tại `tick: 0` trước snapshot tick 0.
+- Khi đổi pha (`gather_end`, `quan_end`, `shop_end`), event kết thúc mang **pha cũ**, ngay sau đó là `phase_start` (hoặc `day_start → day_plan → phase_start`) mang **pha mới** cùng tick, rồi snapshot pha mới có `phase_tick: 0`.
 
-- Bước `k` đọc input ở `tick = k`, biến trạng thái `k → k+1` và mọi event phát ra trong bước đó mang `"tick": k + 1`.
-- Trong cùng 1 tick: ghi **các event theo đúng thứ tự xử lý** trước, rồi mới ghi **snapshot** (nếu tick chia hết cho `--snapshot-every` hoặc gameplay kết thúc).
-- Trong `chonoi.live`, `GET /state` trả kèm danh sách `events` gần nhất dùng đúng cấu trúc dòng event này để `client/ui` kích hoạt hiệu ứng/âm thanh/thông báo.
+## 2. Sự kiện v1.0 (giữ nguyên)
+- `gather`: `node_regrown`, `dive`, `surface`, `oxygen_empty`, `choke`, `faint` (`cause: "choke"`), `gather`, `hold_full`, `fish_caught`, `gather_end`.
+- `quan`: `dish_ready`, `cook_started`, `dish_picked`, `served`, `paid`, `customer_left`, `quan_end`, `customer_arrived`, `no_dish`.
 
-## 2. Sự kiện buổi sáng (`phase: "gather"`)
+## 3. Sự kiện mới ở v1.1
 
-**Bên phát:** `sim/gather` (`GatherSim.step`) · **Bên nghe:** `runner` (JSONL), `client/ui` (hiệu ứng/HUD/âm thanh), `qa` (kiểm chứng).
-
-| Thứ tự trong bước | `name` | `data` | Điều kiện phát |
+| `name` | Pha | `data` | Điều kiện phát |
 |---|---|---|---|
-| 1. Đồng hồ & nút | `node_regrown` | `{"node_id": str}` | `regrow_ticks` giảm từ `1` về `0` (duyệt theo `id`); nút có thể hái ngay trong bước này. |
-| 2. Bơi & biên nước | `dive` | `{"pos": [x, d]}` | Đầu bước ở mặt nước (`d <= surface_depth`), cuối bước dưới nước (`d > surface_depth`). `pos` là tọa độ sau di chuyển. |
-| 2. Bơi & biên nước | `surface` | `{"pos": [x, d]}` | Đầu bước dưới nước, cuối bước ở mặt nước. `pos` là tọa độ sau di chuyển. |
-| 2. Oxy & ngạt | `oxygen_empty` | `{"oxygen_ticks": 0}` | `oxygen_ticks` vừa giảm từ `> 0` xuống `0`. |
-| 2. Oxy & ngạt | `choke` | `{"hp": int}` | Ở dưới nước với `oxygen_ticks == 0` đủ `choke_interval_ticks` (60) bước → trừ 1 Máu; `hp` là giá trị sau khi trừ. |
-| 2. Oxy & ngạt | `faint` | `{"cause": "choke", "lost": [kind, ...], "hp": 0}` | Sau `choke`, `hp == 0`. `lost` là mảng `kind` bị bỏ theo thứ tự **LIFO** (nhặt sau bỏ trước). |
-| 2 / 3 / 5. Kết thúc | `gather_end` | `{"reason": "time"\|"docked"\|"fainted", "inventory": {"items": {...}}}` | Kết thúc buổi sáng (`fainted` dừng ngay ở bước 2 với kho rỗng; `docked` dừng ngay ở bước 3; `time` ở bước 5). |
-| 3. `interact` (hái) | `gather` | `{"node_id": str, "kind": str, "amount": int}` | Ngoài bến, ở mặt nước, chọn nút `ready` gần nhất trong `interact_radius` (hòa theo `id`), giỏ còn đủ chỗ (`node_yield`). |
-| 3 / 4. Giỏ đầy | `hold_full` | `{"action": "gather"\|"catch", "node_id"\|"fish_id": str, "required": int, "free": int}` | Hái (`action:"gather"`, khóa `"node_id"`) hoặc bắt cá (`action:"catch"`, khóa `"fish_id"`) khi `free < required`. Giữ nguyên nút/đàn cá và cooldown. |
-| 4. `catch` (bắt cá) | `fish_caught` | `{"fish_id": str, "kind": str, "yield": int}` | `catch_cd_ticks == 0`, đang dưới nước, chọn đàn gần nhất trong `catch_radius` (hòa theo `id`), giỏ đủ chỗ cho toàn bộ `yield`. |
+| `monster_hit` | `gather` | `{"monster_id": str, "hp": int, "lost": [kind, ...], "pos": [x, d]}` | Quái chạm người chơi (`≤ 1.5 m`, `d ≥ 10`, `invuln_ticks == 0`): `-1` Máu, bỏ `floor(len(hold)/2)` theo LIFO, đặt bất tử `90` tick, quái vào `recoil` `60` bước. |
+| `faint` (mở rộng) | `gather` | `{"cause": "monster", "lost": [kind, ...], "hp": 0}` | `hp` về `0` sau `monster_hit`; `lost` là **phần giỏ còn lại** theo LIFO; tiếp ngay bằng `gather_end(reason:"fainted", items:{})`. |
+| `fish_spawned` | `gather` | `{"id": str, "kind": str, "pos": [x, d]}` | Tại `phase_tick = 360·k` (`k ≥ 1`), sau khi cá bơi, dưới trần `12` đàn và có điểm sinh cách mọi đàn sống `> 1 m`. |
+| `day_start` | `gather` (`day`) | `{}` | Mở đầu mỗi Ngày (`tick: 0` cho Ngày 1; cùng tick `shop_end` cho Ngày kế). |
+| `day_plan` | `gather` (`day`) | `{"dishes": {...}, "ingredients": {...}}` | Ngay sau `day_start`, công bố thực đơn & tổng nguyên liệu Ngày đó. |
+| `phase_start` | `gather` / `quan` / `shop` | `{}` | Bắt đầu mỗi pha trong `day`. |
+| `paused` / `resumed` | mọi pha | `{}` | Cạnh lên nút `pause` vào/thoát tạm dừng. |
+| `bought` | `shop` | `{"upgrade": str, "level": int, "price": int, "money": int}` | Mua thành công cấp kế tiếp (`oxygen`/`hp`); trừ `money`, giữ nguyên `earned`. |
+| `buy_failed` | `shop` | `{"action": str, "reason": "funds"\|"max_level"\|"out_of_stock"\|"unknown"}` | Lệnh `buy` thất bại (không đủ tiền, đã tối đa, hoặc không hỗ trợ). |
+| `shop_end` | `shop` | `{"reason": "done"\|"time"}` | Đóng Shop bằng `shop_done` (ưu tiên ở bước cuối) hoặc tự đóng sau `600` tick. |
 
-## 3. Sự kiện buổi tối (`phase: "quan"`)
+## 4. Thứ tự xử lý một bước (v1.1 §4.5)
+1. **Pause:** xét cạnh `pause` trước mọi xử lý gameplay.
+2. **Gather:** đồng hồ/cooldown/bất tử/hồi nút → bơi/oxy/ngạt → cập nhật quái theo `id` & tối đa 1 hit → `interact` (bến trước hái) → `catch` (vị trí cá trước khi bơi) → xét hết giờ → nếu còn giờ: cá bơi theo `id`, rồi sinh cá theo lịch `360·k`.
+3. **Quán:** giữ nguyên thứ tự v1.0; trong `day` lọc menu theo `day_plan.dishes` trước khi lọc tồn khả dụng.
+4. **Shop:** giảm timer → xử lý 1 `buy` → xét `shop_done` → xét hết giờ (`600` tick). Đóng Shop tăng `days_completed`, nếu chưa đủ `--days` thì sao `upgrades → active_upgrades` và dựng Ngày mới ngay tick đó.
 
-**Bên phát:** `sim/quan` (`QuanSim.step`) · **Bên nghe:** `runner` (JSONL), `client/ui` (hiệu ứng/HUD/âm thanh), `qa` (kiểm chứng).
-
-| Thứ tự trong bước | `name` | `data` | Điều kiện phát |
-|---|---|---|---|
-| 2. Bếp nấu xong | `dish_ready` | `{"stove_id": str, "order_id": str, "dish_id": str}` | Duyệt bếp theo `id`: bếp `cooking` có `cook_ticks_left` về `0` → chuyển `ready` với `ready_ticks = 0`. |
-| 3. `interact` bếp `idle` | `cook_started` | `{"stove_id": str, "order_id": str, "dish_id": str, "items": [kind, ...], "base_price": int}` | Chọn bếp `idle` lấy đơn `reserved` cũ nhất theo `(order_tick, table_id)`, tiêu nguyên liệu giữ. `items` là mảng `kind` đã sắp theo `kind`. |
-| 3. `interact` bếp `ready` | `dish_picked` | `{"stove_id": str, "order_id": str, "dish_id": str}` | Tay đang trống (`hand is None`), nhấc món khỏi bếp `ready`, bếp về `idle`. |
-| 3. `interact` bàn | `served` | `{"order_id": str, "table_id": str, "dish_id": str, "patience_ticks_left": int, "base_price": int, "tip": int}` | Giao đúng `order_id` trên tay cho khách đang `waiting`; chốt `tip = floor(base_price * tip_rate)` nếu tỷ lệ kiên nhẫn sau bước 1 `>= tip_min_patience_ratio`, ngược lại `0`. |
-| 4. Thanh toán | `paid` | `{"order_id": str, "table_id": str, "base_price": int, "tip": int, "amount": int, "reason": "finished_eating"\|"closing"}` | Duyệt theo `table_id`: khách ăn xong (`finished_eating`) hoặc hết ca khi đang ăn (`closing`). `amount = base_price + tip`. Nếu `tip > 0`, cộng `tip_reputation` và kẹp `[reputation_min, reputation_max]`. |
-| 4. Khách rời | `customer_left` | `{"order_id": str, "table_id": str, "reason": "patience"\|"closing", "reputation": float}` | Duyệt theo `table_id`: hết kiên nhẫn khi còn giờ (`patience`, đổi uy tín theo `left_reputation_delta`) hoặc hết ca khi còn chờ (`closing`, không trừ uy tín). Nhả phần giữ, bỏ món dở trên bếp/tay. |
-| 4. Kết thúc ca | `quan_end` | `{"reason": "time", "money": int, "earned": int, "shift_earned": int, "reputation": float}` | Sau khi dọn hết khách ở bước hết giờ (`time_left_ticks == 0`). |
-| 5. Khách mới | `customer_arrived` | `{"order_id": str, "table_id": str, "dish_id": str}` | Còn giờ, đúng lịch khách (`phase_tick == first_customer_tick` hoặc lặp mỗi `customer_interval_s * 60`), có bàn trống (`id` nhỏ nhất) và có ít nhất 1 món đủ kho khả dụng. |
-| 5. Hết món | `no_dish` | `{}` | Đúng lịch khách và có bàn trống, nhưng không món nào trong 3 món đủ nguyên liệu khả dụng. |
-
-## 4. Dòng `end` (luôn là dòng cuối của JSONL)
-
-```json
-{"type":"end","ticks":10800,"sim_tick":10800,"mode":"quan","state":"finished","reason":"time","money":72,"earned":72,"reputation":3.2,"score":372}
-```
-
-- `state`: `"finished"` nếu kết thúc do luật gameplay, `"playing"` nếu dừng do chạm `--ticks`.
-- `reason`:
-  - `gather`: `"time"` | `"docked"` | `"fainted"` | `"tick_limit"`.
-  - `quan`: `"time"` | `"tick_limit"`.
-  - Nếu gameplay kết thúc đúng bước cuối được cấp (`ticks`), **ưu tiên lý do gameplay**.
-
-## 5. Quy tắc tất định & định dạng (bắt buộc cho QA và `sim/*`)
-
-- **Sắp thứ tự:** mảng thực thể (`nodes`, `fish`, `stoves`, `tables`, `customers`) sắp theo `ids.sort_by_id`; `hold` theo thứ tự nhặt; `lost` theo LIFO; `cook_started.items` sắp theo `kind`; ứng viên món trong `quan` duyệt theo mã Unicode trước khi chọn đều bằng `Streams`.
-- **Làm tròn khi xuất:** số thực làm tròn 3 chữ số thập phân ở bước ghi JSONL (`chonoi/jsonl.py`); mọi phép so bán kính, tính giá, tính boa dùng giá trị chính xác trước khi định dạng.
-- **Tất định byte-cho-byte:** cùng seed, đầu vào, tham số và bản chạy phải ra JSONL và file kho giống nhau từng byte.
+## 5. Dòng `end`
+- Độc lập (`gather`/`quan`): giữ nguyên v1.0.
+- Chế độ `day`: thêm `"days_completed": int`; `reason` là `"days_complete"` khi đóng đủ `--days` Shop, hoặc `"tick_limit"`.

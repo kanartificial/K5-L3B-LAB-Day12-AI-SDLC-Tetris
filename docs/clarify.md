@@ -2,4 +2,12 @@
 
 | # | Ngày giờ | Câu hỏi | Trả lời / giả định | Ai quyết |
 |---|---|---|---|---|
-
+| 1 | 2026-11-21 (P1) | `tests/test_team_check.py::test_template_is_rejected` đọc trực tiếp `TEAM.md` ở gốc repo nên báo FAIL sau khi nhóm điền danh sách thành viên thật. Xóa test hay tách template riêng? | Tách chuỗi `TEMPLATE` mẫu vào `tests/test_team_check.py` để vẫn kiểm việc từ chối template, đồng thời thêm `test_repo_team_md_is_valid` xác nhận `TEAM.md` thật khớp `team_size` trong `game.contract.json`. Ghi rõ lý do trong commit. | Cả nhóm / QA & Integrator |
+| 2 | 2026-11-21 (P1) | `game.contract.json` vẫn ghi `"team": "ten-nhom"`: đổi thành `"tetris"`? | Đã đổi sang `"tetris"` (khớp `TEAM.md`, `team_size: 4`). | Integrator (`@kanartificial`) |
+| 3 | 2026-11-21 (P1) | Chế độ chơi nối 2 buổi trên 1 cổng (`chonoi/play_campaign.py`) có ảnh hưởng tới Test Contract v1.0 ở headless không? | Không: `play_campaign.py` chỉ dùng cho bản chơi trực tiếp trên trình duyệt, tắt hoàn toàn ở `chonoi.headless`, và dùng nguyên `read_inventory`/`write_inventory` theo Contract G. Ghi vào mục "Sáng tạo của nhóm" trong `README.md`. | Cả nhóm |
+| 4 | 2026-11-21 (P1) | `QuanSim.snapshot()["player"]` ở starter chỉ xuất `{"pos": self.pos}`, trong khi PRD-0 mục D/E khai `quan.player` gồm `{pos, vel}`. | Bổ sung `"vel": list(self.vel)` vào `QuanSim.snapshot()["player"]` để khớp chính xác Test Contract v1.0 mục D & E. | Integrator (`@kanartificial`) |
+| 5 | 2026-11-21 (P2) | TICKET-02 nhắc `"AC-P2-xx"` nhưng không liệt kê mã chi tiết. | Thống nhất dùng mã `AC-P2-01`…`AC-P2-07` theo `docs/plan/phase-2.md`; `docs/verification/phase-2.md` và `tests/test_contract_p2.py` dùng chung bộ mã này. | Nhóm (plan) |
+| 6 | 2026-11-21 (P2) | `day_plan` và `shop` đặt trong `tuning` hay ở gốc manifest `game.contract.json`? | Test chấp nhận cả hai; đề xuất đặt trong `tuning` cạnh `menu` để thống nhất với `gather`/`quan`/`score`. | Hỏi PO / Integrator |
+| 7 | 2026-11-21 (P2) | `--mode day` đi kèm `--inventory` / `--inventory-out` thì xử lý thế nào? | Giả định: trả mã `2` ("hai cờ file kho vẫn dành cho hai mode độc lập"). | Hỏi PO |
+| 8 | 2026-11-21 (P2) | Pause: `--ticks` đếm tick ngoài (gồm cả bước pause) hay `sim_tick`? | Giả định: đếm tick ngoài, vì PRD v1.1 ghi "bước vào pause chỉ tăng tick ngoài". | Hỏi PO |
+| 9 | 2026-11-21 (P2) | `fish_initial` đổi từ mảng 6 đàn thành số `8`: bỏ danh sách vị trí cố định cũ? | Giả định: đúng, vị trí 8 đàn đầu ca chọn theo seed từ các điểm sinh chuẩn (8 điểm khác nhau). | Hỏi PO |

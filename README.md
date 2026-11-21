@@ -1,56 +1,43 @@
-# Day 12 — AI SDLC: Quán Ăn Chợ Nổi
+# Day 12 — AI SDLC: Quán Ăn Chợ Nổi (Nhóm Tetris)
 
-> **Làm theo nhóm 4–6 người** · Dùng AI để xây game 2D qua **4 phase** trong **3 giờ**: Út Sen lặn bắt cá, hái rau trên mặt nước rồi tối mở quán phục vụ khách.
-> **Yêu cầu từng phase mở đúng mốc giờ tại lab board:** **[Chợ Nổi Lab](https://claude.ai/artifact/E35v787wSx2wDgPTNhMVDg)** (cần đăng nhập claude.ai; có trợ giảng AI cho từng phase).
+> **Nhóm Tetris (4 thành viên)** · Xây game 2D **Quán Ăn Chợ Nổi** qua 4 phase: buổi sáng Út Sen lặn bắt cá, hái rau trên sông Chín Khúc (`gather`); buổi tối mở quán phục vụ khách trên nhà bè Má Tư (`quan`).
 
-## Bắt buộc (chỉ có thế)
-
-Cách làm việc kỹ thuật là **tự do** (push thẳng, nhánh + PR, pair, có hay không CI…). Cái bắt buộc:
-
-1. **Một repo chung:** trưởng nhóm **fork** repo này, đặt tên `K5-L3B-LAB-Day12-AI-SDLC-<ten-nhom>`, thêm mọi thành viên làm collaborator (*Settings → Collaborators*, quyền Write) và để repo **public** (giảng viên xem được, không cần mời).
-2. **Cả nhóm cùng commit** bằng tài khoản GitHub của mình, mỗi người **≥ 3 commit có nội dung** (làm cặp thì ghi `Co-authored-by:`).
-3. **Điền [`TEAM.md`](TEAM.md):** danh sách thành viên + thỏa thuận làm việc nhóm; sửa `team_size` trong [`game.contract.json`](game.contract.json). Commit của người không có trong `TEAM.md` không được tính.
-4. **Gắn tag** `phase-1` … `phase-4` đúng hạn; chạy được tại từng tag.
-5. **Ghi chép tối thiểu:** `docs/verification/phase-n.md`, `docs/clarify.md`, `docs/ai-usage-log.md`, `docs/retro.md`, `docs/members/<handle>.md`.
-
-## Bắt đầu nhanh
+## Chạy nhanh từ clone sạch (≤ 3 lệnh, Linux / macOS)
 
 ```bash
-git clone <fork-của-nhóm> && cd <fork-của-nhóm>
-PYTHONPATH=tests:. python3 -m unittest discover -s tests -v        # smoke test
-python3 -m chonoi.live --mode gather                                # chơi thử trên trình duyệt (tùy chọn)
+git clone https://github.com/kanartificial/K5-L3B-LAB-Day12-AI-SDLC-Tetris.git && cd K5-L3B-LAB-Day12-AI-SDLC-Tetris
+PYTHONPATH=tests:. python3 -m unittest discover -s tests -v        # chạy toàn bộ test bằng 1 lệnh
+python3 -m chonoi.live --mode gather                                # chơi thử buổi sáng trên trình duyệt (hoặc --mode quan)
 ```
 
-Game cần chế độ **headless** theo Test Contract (`python3 -m chonoi.headless --mode gather|quan …`) để được chạy và chấm tự động. **Công nghệ không ràng buộc**: khung Python trong `chonoi/` chỉ là gợi ý, chi tiết ở [`docs/STARTER.md`](docs/STARTER.md).
+Chạy **headless** theo Test Contract v1.0 (nối 2 tiến trình qua file kho):
 
-## Tự do sáng tạo
+```bash
+python3 -m chonoi.headless --mode gather --seed 42 --ticks 600 --out gather.jsonl --inventory-out catch.json
+python3 -m chonoi.headless --mode quan   --seed 42 --inventory catch.json --ticks 600 --out quan.jsonl
+```
 
-Ngoài phần đề yêu cầu, nhóm được **thêm** nhân vật, loài cá/cây, sinh vật, món, bản đồ, cơ chế, câu chuyện, đồ họa, âm nhạc… với ba điều kiện: **không phá phần cố định** (tắt ở headless), ghi mục **"Sáng tạo của nhóm"** trong README của nhóm, và **làm lõi đúng trước**.
+## Điều khiển & Cách tính điểm
 
-## Lịch 3 giờ
+- **Điều khiển:**
+  - `WASD` / **Phím mũi tên**: bơi (`gather`) / di chuyển (`quan`)
+  - `E` (`interact`): cập bến hoặc hái rau ở mặt nước (`gather`); nấu / nhấc món / phục vụ (`quan`)
+  - `Space` (`catch`): bắt đàn cá khi đang lặn (`gather`)
+  - `R`: chơi lại từ đầu (trên bản trình duyệt `chonoi.live`)
+- **Cách tính điểm:**
+  `score = earned + 100 × floor(reputation)`
+  - `earned`: tổng thu (nghìn đồng), gồm tiền món (`base_price`) và tiền boa (`floor(base_price × 0.2)` khi phục vụ lúc còn ≥ 50% kiên nhẫn).
+  - `reputation`: uy tín đầu lượt `3.0` (kẹp `[0, 5]`), `+0.2` khi thu boa dương, `-0.5` khi khách hết kiên nhẫn bỏ đi.
 
-| Mốc | Phase | Hạn tag |
-|---|---|---|
-| 0:00 | Phase 1 (PRD-0) | `phase-1` trước 1:00 |
-| 1:00 | Phase 2 | `phase-2` trước 1:55 |
-| 1:55 | Phase 3 | `phase-3` trước 2:30 |
-| 2:30 | Phase 4 | `phase-4` + Release `v1.0.0` trước 3:00 |
+## Sáng tạo của nhóm
 
-Hết giờ mỗi phase thì gắn tag rồi đi tiếp; chỗ chưa xong ghi trung thực trong bằng chứng.
+- **Chế độ chơi nối tiếp 2 buổi trên 1 cổng trình duyệt (`python3 -m chonoi.play_campaign`):** tự mở `gather` tại `http://127.0.0.1:8000/`, khi kết thúc buổi sáng sẽ đọc file kho vừa xuất và chuyển thẳng sang màn `quan` trên cùng một cổng mà người chơi không phải đổi lệnh thủ công.
+- **Đảm bảo giữ đúng lõi & Test Contract:** chế độ này nằm riêng tại [chonoi/play_campaign.py](chonoi/play_campaign.py), **tắt hoàn toàn ở chế độ headless** (`chonoi.headless`) và tái sử dụng nguyên `read_inventory`/`write_inventory` theo [hợp đồng kho](docs/contracts/inventory.md). Toàn bộ **51/51 test hộp đen & unit** đều đạt (xem [docs/proof/phase-1/integration.md](docs/proof/phase-1/integration.md)).
 
-## Đánh giá (100 điểm)
+## Tài liệu dự án
 
-| Hạng mục | Điểm |
-|---|---|
-| Test tự động ẩn (headless, gồm kiểm tra lại phase trước) | 25 |
-| Làm việc nhóm (một repo chung, chia việc, tích hợp, đổi yêu cầu) | 25 |
-| Kiểm chứng & bằng chứng | 15 |
-| Harness AI (AGENTS.md, skill, nhật ký dùng AI) | 10 |
-| Đánh giá & retro | 10 |
-| Chất lượng sản phẩm (đúng yêu cầu, mở rộng/sáng tạo) | 10 |
-| Demo | 5 |
-
-## Quy định
-
-- Dùng AI thoải mái; **không sao chép repo của nhóm khác**; bằng chứng phải thật.
-- Nhân vật, bối cảnh là bản gốc của lab; asset ngoài chỉ dùng CC0/CC-BY/MIT hoặc tự tạo, ghi nguồn trong `CREDITS.md`. Không commit API key, token, `.env`.
+- [TEAM.md](TEAM.md) · [AGENTS.md](AGENTS.md) · [game.contract.json](game.contract.json)
+- Hợp đồng tích hợp: [docs/contracts/README.md](docs/contracts/README.md) ([inventory.md](docs/contracts/inventory.md), [sim-ui.md](docs/contracts/sim-ui.md), [events.md](docs/contracts/events.md), [inventory.sample.json](docs/contracts/inventory.sample.json))
+- Kế hoạch & kiểm chứng: [docs/plan/phase-1.md](docs/plan/phase-1.md), [docs/plan/phase-2.md](docs/plan/phase-2.md), [docs/verification/phase-1.md](docs/verification/phase-1.md), [docs/proof/phase-1/](docs/proof/phase-1/)
+- Ghi chép nhóm: [docs/clarify.md](docs/clarify.md), [docs/standup.md](docs/standup.md), [docs/ai-usage-log.md](docs/ai-usage-log.md), [docs/retro.md](docs/retro.md), [docs/members/](docs/members/)
+- Chi tiết khung kỹ thuật starter: [docs/STARTER.md](docs/STARTER.md)
