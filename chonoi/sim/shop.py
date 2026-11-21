@@ -1,14 +1,24 @@
-"""Shop cuối Ngày (Contract v1.1 §2 & §4.5): mua nâng cấp oxygen / hp, đóng bằng shop_done hoặc tự đóng sau 600 tick."""
+"""Shop cuối Ngày (Contract v1.1 & v1.2): mua nâng cấp oxygen / hp, đóng bằng shop_done hoặc tự đóng sau 600 tick.
+
+Ở v1.2: `stock` dư là mảng cá thể `{id, kind, fresh}` sắp theo `id`; hàng thô ở Shop KHÔNG hao tươi.
+"""
+
+from ..ids import sort_by_id
+from ..inventory import is_v12, serialize_item
 
 
 class ShopSim:
     mode = "day"
     phase = "shop"
 
-    def __init__(self, tuning, stock, money, earned, reputation, upgrades):
+    def __init__(self, tuning, stock, money, earned, reputation, upgrades, contract_version="1.1"):
         self.tuning = tuning
         self.shop_cfg = tuning["shop"]
-        self.stock = {k: v for k, v in sorted(stock.items()) if v > 0}
+        self.v12 = is_v12(contract_version)
+        if self.v12 or isinstance(stock, list):
+            self.stock = [dict(it) for it in sort_by_id(stock)]
+        else:
+            self.stock = {k: v for k, v in sorted(stock.items()) if v > 0}
         self.money = money
         self.earned = earned
         self.reputation = reputation
@@ -18,6 +28,8 @@ class ShopSim:
         self.reason = None
 
     def snapshot(self) -> dict:
+        if isinstance(self.stock, list):
+            return {"stock": [serialize_item(it) for it in sort_by_id(self.stock)]}
         return {
             "stock": {k: self.stock[k] for k in sorted(self.stock) if self.stock[k] > 0},
         }

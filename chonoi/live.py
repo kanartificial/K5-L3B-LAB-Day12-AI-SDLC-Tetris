@@ -41,11 +41,13 @@ from pathlib import Path
 class LiveGame:
     """Một lượt chơi + luồng nền bước 60 tick/s. Mọi truy cập trạng thái đi qua khóa."""
 
-    def __init__(self, mode, tuning, scenario, seed, inventory=None, inventory_out=None, days=5):
+    def __init__(self, mode, tuning, scenario, seed, inventory=None, inventory_out=None, days=5,
+                 contract_version="1.1"):
         self._args = (mode, tuning, scenario, seed, inventory)
         self.mode = mode
         self.tuning = tuning
         self.days = days
+        self.contract_version = contract_version
         self.inventory_out = inventory_out
         self.seed = seed
         self._lock = threading.Lock()
@@ -56,10 +58,11 @@ class LiveGame:
     def _reset(self):
         if self.mode == "day":
             _, tuning, scenario, seed, _ = self._args
-            self.session = DaySession(tuning, scenario, seed, days=self.days)
+            self.session = DaySession(tuning, scenario, seed, days=self.days,
+                                      contract_version=self.contract_version)
             self.events = list(self.session.initial_events())
         else:
-            self.session = Session(*self._args)
+            self.session = Session(*self._args, contract_version=self.contract_version)
             self.events = []
         self.inputs = LiveInputs()
         self._saved = False
@@ -89,17 +92,16 @@ class LiveGame:
             from .scenario import load_scenario
             from .inventory import read_inventory
 
-            scenario = load_scenario(None, new_mode, self.tuning)
+            scenario = load_scenario(None, new_mode, self.tuning, contract_version=self.contract_version)
             inv = None
             inv_out = None
 
             if new_mode == "quan":
                 path = inventory_path or self.inventory_out or "campaign_inventory.json"
                 if Path(path).exists():
-                    inv = read_inventory(path)
+                    inv = read_inventory(path, contract_version=self.contract_version)
                 else:
-                    # Kho trống nếu chưa có file
-                    inv = {"items": {}}
+                    inv = [] if self.contract_version == "1.2" else {}
             else:  # chuyển về gather
                 inv_out = inventory_path or "campaign_inventory.json"
 
@@ -301,12 +303,15 @@ def main(argv=None) -> int:
             raise BadInput("--inventory-out chỉ dùng với gather")
         if a.mode == "day" and not (1 <= a.days <= 5):
             raise BadInput("--days phải trong 1..5")
-        tuning = load_contract()["tuning"]
-        scenario = load_scenario(a.scenario, a.mode, tuning)
-        inventory = read_inventory(a.inventory) if a.inventory else None
+        contract = load_contract()
+        version = contract.get("contract_version", "1.1")
+        tuning = contract["tuning"]
+        scenario = load_scenario(a.scenario, a.mode, tuning, contract_version=version)
+        inventory = read_inventory(a.inventory, contract_version=version) if a.inventory else None
         if inventory is not None and a.mode == "quan" and "stock" in scenario:
             raise BadInput("vừa có quan.stock vừa có --inventory")
-        game = LiveGame(a.mode, tuning, scenario, a.seed, inventory, a.inventory_out, days=a.days)
+        game = LiveGame(a.mode, tuning, scenario, a.seed, inventory, a.inventory_out, days=a.days,
+                        contract_version=version)
         server = LiveServer(game, a.host, a.port)
     except BadInput as e:
         sys.stderr.write(f"đầu vào sai: {e}\n")
