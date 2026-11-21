@@ -1,7 +1,7 @@
 # Smoke tích hợp gather → kho → quan (phút 20)
 
-- Commit: `520f488 (+ thay đổi chưa commit)` · contract_version `1.0`
-- Thời điểm: 2026-11-21 10:37:36
+- Commit: `957e58c (+ thay đổi chưa commit)` · contract_version `1.1`
+- Thời điểm: 2026-11-21 11:09:00
 
 | Kiểm | Kết quả | Chi tiết |
 |---|---|---|

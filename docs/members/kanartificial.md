@@ -1,10 +1,8 @@
 # kanartificial — phản tư cá nhân (≤ 200 từ)
 
-- **Tôi đã làm (kèm link commit):**
-  - Thiết lập `TEAM.md` (`2ec6272`) và cập nhật `game.contract.json` (`team: "tetris"`).
-  - Soạn bộ hợp đồng tích hợp `docs/contracts/{README,inventory,sim-ui,events}.md` (`78bf8a3`).
-  - Triển khai trọn vẹn Lát 1 & Lát 2 `chonoi/sim/gather.py` (bơi, biên, `dive`/`surface`, oxy, `choke` `t+59`, `faint` LIFO, hái nút, `node_regrown`, bắt cá + cooldown `t+L`, `hold_full`, cập bến, xuất kho) cùng 10 test hộp đen `tests/test_gather_p1.py` (`f020f68`).
-  - Lập kế hoạch `docs/plan/phase-1.md` (`ece548f`), `docs/plan/phase-2.md` (`a2634c6`), bổ sung `tests/test_integration_p1.py` và bằng chứng `docs/proof/phase-1/{gather,integration}.md`.
-- **Tôi đã review (kèm link):** Rà tích hợp `chonoi/sim/quan.py` (`8ad8880`) và `chonoi/play_campaign.py` (`2df9c22`) so với Test Contract v1.0; phát hiện thiếu `vel` trong `QuanSim.snapshot()["player"]` và bổ sung.
-- **AI sai ở đâu và tôi phát hiện thế nào:** Khi viết test `test_gather_p1.py`, AI tạo dư một biến `inp` ghi đè ngay sau đó; rà lại code trước khi commit và bỏ đoạn thừa. Ngoài ra kiểm tra thực tế phát hiện `test_template_is_rejected` fail do đọc `TEAM.md` đã điền.
-- **Điều tôi học được:** Chốt sớm contract (schema kho, snapshot, event) và viết test hộp đen ngay theo từng ca biên giúp 4 module ghép lại gần như không lỗi.
+- **Tôi đã làm:**
+  - **Phase 1:** Thiết lập `TEAM.md` (`2ec6272`), chốt `docs/contracts/` v1.0 (`78bf8a3`), triển khai Lát 1–2 `chonoi/sim/gather.py` + `tests/test_gather_p1.py` (`f020f68`), kế hoạch P1/P2 (`ece548f`, `a2634c6`), `tests/test_integration_p1.py`, `README.md`, bằng chứng Phase 1 (`6f0fdcc`) và gắn tag `phase-1`.
+  - **Phase 2:** Nâng Contract v1.1 (`game.contract.json`, `chonoi/{contract,inventory,inputs,scenario,headless,live}.py`, `docs/contracts/`), cá bơi/sinh + Cá Sấu Năm Chèo (`chonoi/sim/gather.py`), `ShopSim` + `DaySession` + `pause` (`chonoi/sim/shop.py`, `chonoi/runner.py`), `tests/test_gather_p2.py`, cập nhật `AGENTS.md` và 2 skill nhóm trong `.agents/skills/`.
+- **Tôi đã review:** Rà `chonoi/sim/quan.py` (`8ad8880`), `chonoi/play_campaign.py` (`2df9c22`) và `tests/test_contract_p2.py` (`957e58c`); bổ sung `vel` và `allowed_dishes` cho `QuanSim`.
+- **AI sai ở đâu và tôi phát hiện thế nào:** Ở Phase 1, AI tạo dư một biến `inp` ghi đè trong test và gặp lỗi `test_template_is_rejected` khi `TEAM.md` đã điền thật; rà code và tách `TEMPLATE` riêng. Ở Phase 2, kiểm kỹ tick snapshot cho thấy cần chụp snapshot khi `bought` để không bỏ lỡ nâng cấp vừa mua trước `shop_done`.
+- **Điều tôi học được:** Test-first bằng `test_contract_p2.py` và chốt contract sớm giúp cả nhóm ghép 86/86 test xanh ngay lần chạy đầu.

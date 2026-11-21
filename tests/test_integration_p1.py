@@ -75,7 +75,8 @@ class TwoProcessIntegrationP1(unittest.TestCase):
             self.assertEqual(q_snaps[0]["stock"], {"ca_loc": 1})
             self.assertIn("vel", q_snaps[0]["player"])
 
-            ev_names = [e["name"] for e in events(q_rows)]
+            # v1.1 có 4 bàn (T1–T4) nên tick 1020 khi hết kho sẽ phát no_dish; lọc riêng vòng đời đơn C1
+            ev_names = [e["name"] for e in events(q_rows) if e["name"] != "no_dish"]
             self.assertEqual(ev_names, [
                 "customer_arrived", "cook_started", "dish_ready", "dish_picked", "served", "paid",
             ])

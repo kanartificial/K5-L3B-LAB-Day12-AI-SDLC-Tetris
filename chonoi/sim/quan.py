@@ -21,10 +21,12 @@ class QuanSim:
     mode = "quan"
     phase = "quan"
 
-    def __init__(self, tuning, scenario, streams, ids, inventory=None):
+    def __init__(self, tuning, scenario, streams, ids, inventory=None,
+                 allowed_dishes=None, money=0, earned=0, reputation=None):
         t = tuning["quan"]
         self.t = t
         self.menu = tuning["menu"]
+        self.allowed_dishes = set(allowed_dishes) if allowed_dishes is not None else None
         self.rng = streams
         self.ids = ids
         self.phase_tick = 0
@@ -39,7 +41,9 @@ class QuanSim:
         self.stock = dict(inventory if inventory is not None else scenario.get("stock", {}))
         self.hand = scenario.get("hand")
         self.time_left_ticks = scenario.get("time_left_ticks", int(round(t["duration_s"] * 60)))
-        self.reputation = scenario.get("reputation", t["reputation_initial"])
+        self.reputation = (
+            reputation if reputation is not None else scenario.get("reputation", t["reputation_initial"])
+        )
         self.stoves = [dict(s, state=s.get("state", "idle"), dish=s.get("dish"),
                             cook_ticks_left=s.get("cook_ticks_left", 0), ready_ticks=s.get("ready_ticks", 0))
                        for s in self._merge(t["stoves"], scenario.get("stoves", []))]
@@ -52,8 +56,8 @@ class QuanSim:
             self.customers.append(dict(customer, reserved=customer.get("reserved", reserved).copy()))
         for e in self.customers:
             ids.reserve(e["id"])
-        self.money = 0
-        self.earned = 0
+        self.money = money
+        self.earned = earned
         self.shift_earned = 0
         self.done = False
         self.reason = None
@@ -254,7 +258,8 @@ class QuanSim:
 
         candidates = [
             dish_id for dish_id, dish in sorted(self.menu.items())
-            if all(available.get(kind, 0) >= count for kind, count in dish["recipe"].items())
+            if (self.allowed_dishes is None or dish_id in self.allowed_dishes)
+            and all(available.get(kind, 0) >= count for kind, count in dish["recipe"].items())
         ]
         if not candidates:
             events.append(("no_dish", {}))

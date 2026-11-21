@@ -1,11 +1,11 @@
 # Regression P1 + test P2
 
-- Commit: `ece548f (+ thay đổi chưa commit)` · contract_version `1.0`
-- Thời điểm: 2026-11-21 10:30:33
+- Commit: `957e58c (+ thay đổi chưa commit)` · contract_version `1.1`
+- Thời điểm: 2026-11-21 11:09:31
 
 | Kiểm | Kết quả | Chi tiết |
 |---|---|---|
-| toàn bộ test (P1 + P2) xanh | CHƯA ĐẠT | Ran 72 tests in 20.765s · FAILED (failures=1, skipped=30) · FAIL: test_template_is_rejected (test_team_check.TeamCheck.test_template_is_rejected) |
+| toàn bộ test (P1 + P2) xanh | ĐẠT | Ran 86 tests in 22.735s · OK |
 
 Lệnh đã chạy:
 
