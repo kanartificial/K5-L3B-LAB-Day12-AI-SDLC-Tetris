@@ -3,7 +3,8 @@
 > Cập nhật file này qua các phase (lịch sử git phải cho thấy điều đó). Ngắn gọn, có lệnh chạy thật.
 
 ## Lệnh
-- Test: `PYTHONPATH=tests:. python3 -m unittest discover -s tests -v`
+- Test: `PYTHONPATH=tests:. python3 -m unittest discover -s tests -v` (Windows/Git Bash: `PYTHONPATH="tests;."`)
+- Kiểm tất định (QA): `python3 tools/check_determinism.py --proof docs/proof/phase-1` — chạy 2 lần cùng seed, so byte JSONL + kho, kiểm sắp id / làm tròn; chạy trước khi gắn tag.
 - Headless: `python3 -m chonoi.headless --mode gather|quan --seed 1 --ticks 600 --out out.jsonl`
 - Chơi thử trên trình duyệt: `python3 -m chonoi.live --mode gather|quan` (mở địa chỉ in ra; WASD, E, Space, R)
 
