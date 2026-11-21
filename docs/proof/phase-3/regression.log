@@ -1,4 +1,4 @@
-# commit 94f2328 (+ thay đổi chưa commit)
+# commit 0b13736 (+ thay đổi chưa commit)
 $ PYTHONPATH=tests;. python3 -m unittest discover -s tests -v
 test_p2_01_cli_day_scenario_rejections (test_contract_p2.DayCli.test_p2_01_cli_day_scenario_rejections) ... ok
 test_p2_01_cli_days_flag_domain (test_contract_p2.DayCli.test_p2_01_cli_days_flag_domain) ... ok
@@ -78,17 +78,17 @@ test_v12_rejects_counted_inventory_and_invalid_items (test_gather_p3.AdapterAndS
 Contract v1.2 từ chối file kho đếm, id trùng, kind lạ, fresh ngoài [0, 100]. ... ok
 test_v12_scenario_validation_hold_stock_and_reserved (test_gather_p3.AdapterAndSchemaV12.test_v12_scenario_validation_hold_stock_and_reserved) ... ok
 test_v12_write_and_read_inventory_preserves_threshold_precision (test_gather_p3.AdapterAndSchemaV12.test_v12_write_and_read_inventory_preserves_threshold_precision)
-Ghi nguyên tử sắp theo id và đọc lại giữ chính xác bội số 1/240 tại ngưỡng 30. ... C:\Users\Admin\Documents\AI20K_LAB\K5-L3B-LAB-Day12-AI-SDLC-Tetris\tests\test_gather_p3.py:60: ResourceWarning: unclosed file <_io.TextIOWrapper name='C:\\Users\\Admin\\AppData\\Local\\Temp\\tmphncacb9j\\inv.json' mode='r' encoding='utf-8'>
+Ghi nguyên tử sắp theo id và đọc lại giữ chính xác bội số 1/240 tại ngưỡng 30. ... C:\Users\Admin\Documents\AI20K_LAB\K5-L3B-LAB-Day12-AI-SDLC-Tetris\tests\test_gather_p3.py:60: ResourceWarning: unclosed file <_io.TextIOWrapper name='C:\\Users\\Admin\\AppData\\Local\\Temp\\tmpsr64_zbv\\inv.json' mode='r' encoding='utf-8'>
   raw = json.loads(open(p, encoding="utf-8").read())
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
 test_dock_smoke_writes_exact_v12_inventory_file (test_gather_p3.GatherFreshnessV12.test_dock_smoke_writes_exact_v12_inventory_file)
-Smoke bàn giao TICKET-03: fresh=100, interact ở tick 0 -> file kho chứa fresh sau 1 bước hao. ... C:\Users\Admin\Documents\AI20K_LAB\K5-L3B-LAB-Day12-AI-SDLC-Tetris\tests\test_gather_p3.py:211: ResourceWarning: unclosed file <_io.TextIOWrapper name='C:\\Users\\Admin\\AppData\\Local\\Temp\\tmpp5bvif1e\\catch.json' mode='r' encoding='utf-8'>
+Smoke bàn giao TICKET-03: fresh=100, interact ở tick 0 -> file kho chứa fresh sau 1 bước hao. ... C:\Users\Admin\Documents\AI20K_LAB\K5-L3B-LAB-Day12-AI-SDLC-Tetris\tests\test_gather_p3.py:211: ResourceWarning: unclosed file <_io.TextIOWrapper name='C:\\Users\\Admin\\AppData\\Local\\Temp\\tmplpz9l_ea\\catch.json' mode='r' encoding='utf-8'>
   saved = json.loads(open(inv_path, encoding="utf-8").read())
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
 test_monster_hit_and_faint_emit_item_objects_lifo_and_empty_inventory (test_gather_p3.GatherFreshnessV12.test_monster_hit_and_faint_emit_item_objects_lifo_and_empty_inventory)
-monster_hit và faint xuất `lost` là mảng cá thể theo LIFO; ngất ghi kho rỗng {"items":[]}. ... C:\Users\Admin\Documents\AI20K_LAB\K5-L3B-LAB-Day12-AI-SDLC-Tetris\tests\test_gather_p3.py:197: ResourceWarning: unclosed file <_io.TextIOWrapper name='C:\\Users\\Admin\\AppData\\Local\\Temp\\tmpm3pbhe3o\\faint.json' mode='r' encoding='utf-8'>
+monster_hit và faint xuất `lost` là mảng cá thể theo LIFO; ngất ghi kho rỗng {"items":[]}. ... C:\Users\Admin\Documents\AI20K_LAB\K5-L3B-LAB-Day12-AI-SDLC-Tetris\tests\test_gather_p3.py:197: ResourceWarning: unclosed file <_io.TextIOWrapper name='C:\\Users\\Admin\\AppData\\Local\\Temp\\tmpy65tk9v5\\faint.json' mode='r' encoding='utf-8'>
   self.assertEqual(json.loads(open(inv_path, encoding="utf-8").read()), {"items": []})
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
@@ -159,6 +159,6 @@ test_too_few_members (test_team_check.TeamCheck.test_too_few_members) ... ok
 test_wrong_size_duplicate_and_outsider (test_team_check.TeamCheck.test_wrong_size_duplicate_and_outsider) ... ok
 
 ----------------------------------------------------------------------
-Ran 119 tests in 38.451s
+Ran 119 tests in 41.092s
 
 OK

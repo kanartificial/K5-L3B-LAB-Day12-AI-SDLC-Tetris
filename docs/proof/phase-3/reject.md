@@ -1,7 +1,7 @@
 # Smoke từ chối kho sai schema (v1.2)
 
-- Commit: `94f2328 (+ thay đổi chưa commit)` · contract_version `1.2`
-- Thời điểm: 2026-11-21 12:35:20
+- Commit: `0b13736 (+ thay đổi chưa commit)` · contract_version `1.2`
+- Thời điểm: 2026-11-21 12:38:05
 
 | Kiểm | Kết quả | Chi tiết |
 |---|---|---|

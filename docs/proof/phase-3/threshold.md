@@ -1,7 +1,7 @@
 # Smoke ngưỡng ươn 30 (ví dụ TICKET-03)
 
-- Commit: `94f2328 (+ thay đổi chưa commit)` · contract_version `1.2`
-- Thời điểm: 2026-11-21 12:35:19
+- Commit: `0b13736` · contract_version `1.2`
+- Thời điểm: 2026-11-21 12:38:03
 
 | Kiểm | Kết quả | Chi tiết |
 |---|---|---|
