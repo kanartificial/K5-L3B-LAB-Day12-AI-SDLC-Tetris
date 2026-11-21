@@ -11,3 +11,4 @@
 | 7 | 2026-11-21 (P2) | `--mode day` đi kèm `--inventory` / `--inventory-out` thì xử lý thế nào? | Giả định: trả mã `2` ("hai cờ file kho vẫn dành cho hai mode độc lập"). | Hỏi PO |
 | 8 | 2026-11-21 (P2) | Pause: `--ticks` đếm tick ngoài (gồm cả bước pause) hay `sim_tick`? | Giả định: đếm tick ngoài, vì PRD v1.1 ghi "bước vào pause chỉ tăng tick ngoài". | Hỏi PO |
 | 9 | 2026-11-21 (P2) | `fish_initial` đổi từ mảng 6 đàn thành số `8`: bỏ danh sách vị trí cố định cũ? | Giả định: đúng, vị trí 8 đàn đầu ca chọn theo seed từ các điểm sinh chuẩn (8 điểm khác nhau). | Hỏi PO |
+| 10 | 2026-11-21 (P3) | Chốt giá theo độ tươi ở bước nào và xử lý đơn thường ra sao nếu giữ lại thiếu? | Theo TICKET-03 đầy đủ: chốt khi bắt đầu nấu bằng floor(giá niêm yết × trung bình fresh / 100). Đơn thường thử giữ lại đúng một lần, nếu thiếu chuyển `unfulfillable` và khách tiếp tục chờ tới hạn. | TICKET-03, mục Độ tươi, giữ chỗ và giá |
