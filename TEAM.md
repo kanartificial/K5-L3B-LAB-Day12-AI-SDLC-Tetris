@@ -8,7 +8,7 @@
 |---|---|---|---|---|
 | Khổng Ngọc Anh | kanartificial | `sim/gather` | | |
 | Võ Thị Kim Ý | KimY22-it | `sim/quan` | | |
-| Vương Thu Thảo | ThuThaoVuong | `client/ui` | | |
+| Vương Thu Thảo | ThuThaoVuong | `client/ui` | QA Lead | |
 | Lý Hà Trân Trân | TranHa161 | `qa` | | |
 
 **Vai quy trình:** PO (đầu mối hỏi giảng viên, giữ `docs/clarify.md`) · Integrator (giữ `docs/contracts/`, gắn tag) · QA lead · Scrum/Release. Có thể kiêm.
