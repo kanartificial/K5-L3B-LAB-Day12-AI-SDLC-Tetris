@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Chợ Nổi — Phase 3 · Độ tươi</title>
+<title>Chợ Nổi — v1.0.0</title>
 <style>
 :root{
   --ink:#173047;--cream:#fff3d5;--gold:#f6c65b;--teal:#4cbdad;--red:#ed6b63;
@@ -60,6 +60,26 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .warn-banner.show{display:block}
 .warn-oxy{background:#5a1a18;border-color:#ed6b63;color:#ffb0a8}
 .warn-monster{background:#2a185a;border-color:#9b6bff;color:#d4b8ff}
+.warn-angry{background:#5a3a10;border-color:#f6c65b;color:#ffe29a}
+.warn-stack{position:absolute;top:8px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;z-index:10;pointer-events:none}
+.warn-stack .warn-banner{position:static;transform:none}
+
+/* ===== Chế độ tương phản cao (phím H / nút / ?hc=1) ===== */
+body.hc{background:#000}
+body.hc .game{background:#000;border-color:#fff;box-shadow:none}
+body.hc .top,body.hc .stat,body.hc .controls,body.hc .plan-box,body.hc .event,body.hc .dialog,body.hc .shop-item{background:#000;border-color:#fff;color:#fff}
+body.hc .brand,body.hc .pill,body.hc .stat strong,body.hc .keys,body.hc .status,body.hc .dialog h2{color:#ffff00;text-shadow:none}
+body.hc .sub,body.hc .stat small,body.hc .bottom,body.hc .dialog p,body.hc .dialog li{color:#fff}
+body.hc .meter{background:#000;border-color:#fff}
+body.hc .meter i{background:#00ffff}
+body.hc .meter.warn i,body.hc .meter.crit i{background:#ffff00}
+body.hc button{background:#ffff00;color:#000;border-color:#fff}
+body.hc button.secondary{background:#000;color:#ffff00;border-color:#ffff00}
+body.hc .stage{border-color:#fff}
+body.hc canvas{filter:contrast(1.35) saturate(1.25)}
+body.hc .warn-banner{background:#000;color:#ffff00;border:4px solid #ffff00;font-size:20px;letter-spacing:1px}
+body.hc .plan-box .ok{color:#00ff66}
+body.hc .plan-box .miss{color:#ff5555}
 
 .shop-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0;text-align:left}
 .shop-item{background:#102d40;border:2px solid #37677a;padding:10px}
@@ -84,7 +104,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
   <header class="top">
     <div>
       <div class="brand">✦ CHỢ NỔI ✦</div>
-      <div class="sub">Phase 3 · Độ tươi nguyên liệu</div>
+      <div class="sub">v1.0.0 · Lặn &amp; Hái · Mở Quán · Shop</div>
     </div>
     <div class="pill" id="phasePill">ĐANG KẾT NỐI…</div>
   </header>
@@ -100,8 +120,11 @@ button:disabled{opacity:.45;cursor:not-allowed}
 
     <div class="stage" id="stage">
       <canvas id="screen" width="960" height="540"></canvas>
-      <div class="warn-banner warn-oxy" id="warnOxy">HẾT HƠI!</div>
-      <div class="warn-banner warn-monster" id="warnMonster">THỦY QUÁI!</div>
+      <div class="warn-stack" aria-live="assertive">
+        <div class="warn-banner warn-oxy" id="warnOxy" role="alert">🫧 SẮP HẾT OXY — NỔI LÊN!</div>
+        <div class="warn-banner warn-monster" id="warnMonster" role="alert">🐊 THỦY QUÁI GẦN!</div>
+        <div class="warn-banner warn-angry" id="warnAngry" role="alert">😠 KHÁCH SẮP GIẬN!</div>
+      </div>
 
       <div class="overlay show" id="mainMenu">
         <div class="dialog">
@@ -174,6 +197,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
       <button id="btnCatch">BẮT CÁ<span class="key">Space</span></button>
       <button id="btnPause" class="secondary">TẠM DỪNG<span class="key">Esc/P</span></button>
       <button id="btnRestart2" class="secondary">CHƠI LẠI<span class="key">R</span></button>
+      <button id="btnContrast" class="secondary" aria-pressed="false">TƯƠNG PHẢN CAO<span class="key">H</span></button>
     </div>
 
     <div class="events" id="events"></div>
@@ -181,7 +205,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
       <div class="status" id="status">Đang tải…</div>
       <div>
         <span class="keys">WASD</span> · <span class="keys">E</span> · <span class="keys">Space</span> ·
-        <span class="keys">Esc/P</span> pause · <span class="keys">R</span> lại
+        <span class="keys">Esc/P</span> pause · <span class="keys">R</span> lại · <span class="keys">H</span> tương phản cao
       </div>
     </div>
   </main>
@@ -216,6 +240,50 @@ const dishNames = {
 };
 const SPOILED = 30; // ngưỡng ươn
 const $ = id => document.getElementById(id);
+const Q = new URLSearchParams(location.search);
+
+/* ========== Tương phản cao ========== */
+let HC = false;
+function setContrast(on) {
+  HC = !!on;
+  document.body.classList.toggle("hc", HC);
+  $("btnContrast").setAttribute("aria-pressed", String(HC));
+  try { localStorage.setItem("chonoi.hc", HC ? "1" : "0"); } catch (e) {}
+}
+(() => {
+  let saved = null;
+  try { saved = localStorage.getItem("chonoi.hc"); } catch (e) {}
+  setContrast(Q.has("hc") ? Q.get("hc") !== "0" : saved === "1");
+})();
+// Màu cảnh báo trên canvas: thường / tương phản cao
+const warnCol = () => HC ? {fg:"#ffff00", bg:"#000000", bad:"#ff3030", good:"#00ff66"}
+                         : {fg:"#ffe29a", bg:"#5a3a10", bad:"#ed6b63", good:"#5dbe7a"};
+
+/* ========== Benchmark (?bench=1&warmup=3&duration=30) — xem chonoi/bench.py ========== */
+const BENCH = Q.has("bench") ? {
+  warm: Number(Q.get("warmup") ?? 3) * 1000, dur: Number(Q.get("duration") ?? 30) * 1000,
+  first: null, start: null, last: null, frames: [], sent: false
+} : null;
+function benchPost(body) {
+  return fetch("/bench", {method: "POST", headers: {"Content-Type": "application/json"},
+                          body: JSON.stringify(body)}).catch(() => {});
+}
+function benchTick(ts) {
+  if (!BENCH || BENCH.sent || !snap) return;
+  if (BENCH.first === null) {           // khung đầu tiên đã vẽ cảnh đo (có snapshot)
+    BENCH.first = ts;
+    benchPost({type: "first_frame", epoch_ms: performance.timeOrigin + ts});
+  }
+  if (ts < BENCH.first + BENCH.warm) { BENCH.last = ts; return; }   // làm nóng
+  if (BENCH.start === null) { BENCH.start = ts; BENCH.last = ts; return; }
+  BENCH.frames.push(ts - BENCH.last);
+  BENCH.last = ts;
+  if (ts - BENCH.start >= BENCH.dur) {
+    BENCH.sent = true;
+    benchPost({type: "result", frame_ms: BENCH.frames, first_frame_epoch_ms: performance.timeOrigin + BENCH.first,
+               viewport: [innerWidth, innerHeight], user_agent: navigator.userAgent});
+  }
+}
 
 /* ========== Phase 3 helpers: normalize hold/stock ========== */
 /** Trả về mảng cá thể {id, kind, fresh}. Hỗ trợ cả schema cũ. */
@@ -302,9 +370,11 @@ $("btnStartQuan").onclick = () => $("eveningIntro").classList.remove("show");
 $("btnToShop").onclick = () => $("dayResult").classList.remove("show");
 $("btnCloseShop").onclick = () => sendInput({shop_done: true});
 $("btnRestart").onclick = () => restart();
+$("btnContrast").onclick = () => setContrast(!HC);
 
 addEventListener("keydown", e => {
   const k = e.key.toLowerCase();
+  if (k === "h") { setContrast(!HC); e.preventDefault(); return; }
   if (uiPhase === "menu") { if (k==="enter"||k===" ") startGame(); return; }
   if (uiPhase === "dayintro") { advanceIntro(); return; }
   if (k==="escape"||k==="p") { e.preventDefault(); togglePause(); return; }
@@ -492,11 +562,15 @@ function updateGatherHud() {
   const spoiledN = items.filter(isSpoiled).length;
   $("status").textContent = `Độ sâu ${depth.toFixed(1)}m · Giỏ ${items.length} (ươn ${spoiledN})`;
 
-  $("warnOxy").classList.toggle("show", oxy===0 && !p.at_surface);
+  // Cảnh báo oxy: còn < 25% khi đang lặn (trước khi hết), đổi chữ khi đã về 0
+  const oxyLow = !p.at_surface && oFrac < 0.25;
+  $("warnOxy").textContent = oxy === 0 ? "🫧 HẾT OXY — ĐANG NGẠT, NỔI LÊN NGAY!" : `🫧 SẮP HẾT OXY (${Math.ceil(oxy/60)}s) — NỔI LÊN!`;
+  $("warnOxy").classList.toggle("show", oxyLow);
+  $("warnAngry").classList.remove("show");
   const monsters = snap.monsters||[];
   const near = monsters.some(m => Math.hypot((m.pos?.[0]||0)-(p.pos?.[0]||0),(m.pos?.[1]||0)-(p.pos?.[1]||0))<12);
   $("warnMonster").classList.toggle("show", near);
-  $("stage").style.boxShadow = near ? "0 0 0 4px #9b6bff" : "";
+  $("stage").style.boxShadow = near ? (HC ? "0 0 0 6px #ffff00" : "0 0 0 4px #9b6bff") : "";
 
   // Plan: chỉ đếm hàng còn dùng được
   const plan = snap.day_plan || {};
@@ -528,7 +602,13 @@ function updateQuanHud() {
   $("planBox").style.display = "none";
   $("warnOxy").classList.remove("show");
   $("warnMonster").classList.remove("show");
-  $("stage").style.boxShadow = "";
+  // Cảnh báo khách sắp giận: khách đang chờ còn < 25% kiên nhẫn
+  const maxPat = (snap.meta?.patience_s || 60) * 60;
+  const angry = (snap.customers||[]).filter(c => c.state === "waiting" &&
+    (c.patience_ticks_left ?? maxPat) / maxPat < 0.25).map(c => c.table_id);
+  $("warnAngry").textContent = `😠 KHÁCH SẮP GIẬN: ${angry.join(", ")}`;
+  $("warnAngry").classList.toggle("show", angry.length > 0);
+  $("stage").style.boxShadow = angry.length ? (HC ? "0 0 0 6px #ffff00" : "0 0 0 4px #f6c65b") : "";
   $("status").textContent = `Trên tay: ${dishLabel(snap.hand)} · E nấu/lấy/phục vụ`;
 }
 
@@ -540,6 +620,7 @@ function updateShopHud() {
   $("stat4label").textContent = "Điểm";
   $("stat4").textContent = snap.score ?? 0;
   $("planBox").style.display = "none";
+  ["warnOxy", "warnMonster", "warnAngry"].forEach(id => $(id).classList.remove("show"));
 }
 
 function eventLabel(n) {
@@ -645,7 +726,14 @@ function drawGather() {
   (snap.fish||[]).forEach(f=>fishSprite(X(f.pos[0]),Y(f.pos[1]),1.8,colors[f.kind]||"#dce8dd"));
   (snap.monsters||[]).forEach(mon=>{
     crocSprite(X(mon.pos[0]),Y(mon.pos[1]),1.4);
-    txt(mon.id||"M",X(mon.pos[0]),Y(mon.pos[1])+18,10,"#d4b8ff","center");
+    txt(mon.id||"M",X(mon.pos[0]),Y(mon.pos[1])+18,10,HC?"#ffff00":"#d4b8ff","center");
+    const pp = snap.player?.pos || [0,0];
+    if (Math.hypot(mon.pos[0]-pp[0], mon.pos[1]-pp[1]) < 12) {   // biểu tượng "!" trên thủy quái gần
+      const wc = warnCol(), mx = X(mon.pos[0]), my = Y(mon.pos[1]) - 30;
+      rect(mx-11, my-13, 22, 22, wc.bg); ctx.strokeStyle = wc.fg; ctx.lineWidth = 2;
+      ctx.strokeRect(mx-11, my-13, 22, 22); ctx.lineWidth = 1;
+      txt("!", mx, my+4, 16, wc.fg, "center");
+    }
   });
 
   const px=X(p.pos?.[0]||0), py=Y(p.pos?.[1]||0);
@@ -715,8 +803,15 @@ function drawQuan() {
       txt(full.length>14?full.slice(0,13)+"…":full, x, y-48, 11, "#fff0c6","center");
       const max=(m.patience_s||60)*60;
       const frac=Math.max(0,Math.min(1,(c.patience_ticks_left??max)/max));
-      rect(x-24,y+20,48,6,"#563b35");
-      rect(x-24,y+20,48*frac,6,frac<0.25?"#ed6b63":"#5dbe7a");
+      const wc = warnCol();
+      rect(x-24,y+20,48,6,HC?"#ffffff":"#563b35");
+      rect(x-24,y+20,48*frac,6,frac<0.25?wc.bad:wc.good);
+      if (c.state === "waiting" && frac < 0.25) {   // khách sắp giận: biểu tượng + chữ
+        rect(x+14, y-44, 22, 22, wc.bg); ctx.strokeStyle = wc.fg; ctx.lineWidth = 2;
+        ctx.strokeRect(x+14, y-44, 22, 22); ctx.lineWidth = 1;
+        txt("!", x+25, y-28, 16, wc.fg, "center");
+        txt("SẮP GIẬN", x, y+40, 11, wc.fg, "center");
+      }
     }
   });
 
@@ -789,9 +884,11 @@ function render() {
   }
 }
 
-function loop(){ render(); requestAnimationFrame(loop); }
+// ?bench=1 hoặc ?play=1: vào thẳng cảnh, bỏ menu (bench chạy không người chơi)
+if (BENCH || Q.has("play")) { $("mainMenu").classList.remove("show"); uiPhase = "playing"; }
+function loop(ts){ render(); benchTick(ts); requestAnimationFrame(loop); }
 poll();
-loop();
+requestAnimationFrame(loop);
 </script>
 </body>
 </html>

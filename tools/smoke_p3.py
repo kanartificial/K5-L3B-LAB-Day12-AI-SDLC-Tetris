@@ -5,7 +5,7 @@
   python3 tools/smoke_p3.py reject        # kho đếm / sai schema -> mã 2
   python3 tools/smoke_p3.py day           # day --days 1 có hàng (bàn giao cùng tick, Shop không hao) + --days 1|5 chuẩn
   python3 tools/smoke_p3.py regression    # chạy lại toàn bộ unittest (P1 + P2 + P3)
-  python3 tools/smoke_p3.py all
+  python3 tools/smoke_p3.py all [--proof DIR]   # mặc định docs/proof/phase-3/
 
 Hộp đen: chỉ dùng headless_cmd trong game.contract.json. Mã thoát 0 = đạt hết, 1 = có mục chưa đạt.
 """
@@ -145,7 +145,13 @@ def day():
 
 
 def main():
-    what = sys.argv[1] if len(sys.argv) > 1 else "all"
+    global PROOF
+    args = sys.argv[1:]
+    if "--proof" in args:  # ghi bằng chứng vào thư mục khác (vd docs/proof/phase-4/smoke)
+        i = args.index("--proof")
+        base.PROOF = PROOF = os.path.abspath(args[i + 1])
+        del args[i:i + 2]
+    what = args[0] if args else "all"
     steps = {"threshold": [threshold], "integration": [integration], "reject": [reject], "day": [day],
              "regression": [base.regression],
              "all": [threshold, integration, reject, day, base.regression]}[what]

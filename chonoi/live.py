@@ -24,7 +24,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from .contract import load_contract
 from .errors import BadInput
 from .inputs import LiveInputs
-from .inventory import read_inventory
+from .inventory import is_v12, read_inventory
 from .runner import DaySession, Session
 from .scenario import load_scenario
 
@@ -101,7 +101,7 @@ class LiveGame:
                 if Path(path).exists():
                     inv = read_inventory(path, contract_version=self.contract_version)
                 else:
-                    inv = [] if self.contract_version == "1.2" else {}
+                    inv = [] if is_v12(self.contract_version) else {}
             else:  # chuyển về gather
                 inv_out = inventory_path or "campaign_inventory.json"
 
@@ -256,13 +256,22 @@ class _Handler(BaseHTTPRequestHandler):
         self._send(200, b'{"ok":true}')
 
 
+class _QuietHTTPServer(ThreadingHTTPServer):
+    """Đóng tab khi trình duyệt còn poll -> ConnectionReset: bỏ qua thay vì in traceback ra terminal."""
+
+    def handle_error(self, request, client_address):
+        if isinstance(sys.exc_info()[1], (ConnectionResetError, ConnectionAbortedError, BrokenPipeError)):
+            return
+        super().handle_error(request, client_address)
+
+
 class LiveServer:
     """Máy chủ + mô phỏng. port=0 -> cổng ngẫu nhiên (đọc `.port`)."""
 
     def __init__(self, game: LiveGame, host="127.0.0.1", port=8000):
         handler = type("Handler", (_Handler,), {"game": game})
         self.game = game
-        self.httpd = ThreadingHTTPServer((host, port), handler)
+        self.httpd = _QuietHTTPServer((host, port), handler)
         self.httpd.daemon_threads = True
         self.host = host
         self.port = self.httpd.server_address[1]

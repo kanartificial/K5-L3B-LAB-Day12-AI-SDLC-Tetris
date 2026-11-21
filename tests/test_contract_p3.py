@@ -23,7 +23,7 @@ def contract():
         return json.load(f)
 
 
-V12 = contract().get("contract_version") == "1.2"
+V12 = contract().get("contract_version") in ("1.2", "1.3")  # v1.3 giữ nguyên luật v1.2
 need_v12 = unittest.skipUnless(V12, "chờ contract_version 1.2 (Phase 3)")
 DOCK = frames({"tick": 0, "interact": True})
 
@@ -37,7 +37,7 @@ def run_ok(test, *args):
 class ContractV12(unittest.TestCase):
     def test_p3_01_manifest_version_and_freshness(self):
         c = contract()
-        self.assertEqual(c["contract_version"], "1.2")
+        self.assertIn(c["contract_version"], ("1.2", "1.3"))
         self.assertEqual(c["tuning"]["freshness"],
                          {"initial": 100, "gather_decay_per_s": 0.5, "quan_decay_per_s": 0.25, "spoiled_below": 30})
 

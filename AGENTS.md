@@ -1,17 +1,20 @@
 # AGENTS.md — hướng dẫn chung cho mọi agent AI của nhóm Tetris
 
-> Cập nhật qua các phase: **Phase 1 (v1.0)** → **Phase 2 (v1.1: cá bơi/sinh, Cá Sấu, 2 bếp/4 bàn/6 món, `--mode day`, Shop, `pause`)**.
+> Cập nhật qua các phase: **Phase 1 (v1.0)** → **Phase 2 (v1.1)** → **Phase 3 (v1.2: kho cá thể + độ tươi)** → **Phase 4 (v1.3: `bench_cmd`, `soak_cmd`, phát hành v1.0.0)**.
 
 ## Lệnh
 - Test toàn bộ: `PYTHONPATH=tests:. python3 -m unittest discover -s tests -v` (Windows/Git Bash: `PYTHONPATH="tests;."`)
 - Smoke Phase 2 (QA): `python3 tools/smoke_p2.py all` — chạy smoke tích hợp 2 tiến trình, `--mode day --days 1|5` và regression; ghi bằng chứng vào `docs/proof/phase-2/`.
 - Smoke Phase 3 (QA, Contract v1.2): `python3 tools/smoke_p3.py all` — ngưỡng ươn 30, bàn giao kho cá thể 2 tiến trình, kho đếm → mã 2, `day` có hàng (→ Shop → Ngày 2), regression; ghi vào `docs/proof/phase-3/`.
-- Kiểm tất định (QA): `python3 tools/check_determinism.py --proof docs/proof/phase-3` — chạy 2 lần cùng seed, so byte JSONL + kho, kiểm sắp id / làm tròn; chạy trước khi gắn tag.
+- Kiểm tất định (QA): `python3 tools/check_determinism.py --proof docs/proof/phase-4`
+- Bench có render (v1.3, cần Chrome/Chromium/Edge): `python3 -m chonoi.bench --seed 42 --duration 30 --out bench.json`
+- Soak headless (v1.3): `python3 -m chonoi.soak --seed 7 --days 10 --out soak.json`
+- Chơi thử 3 cảnh báo ở chế độ thường + tương phản cao (cần Chrome + Node ≥ 22): `python3 tools/playtest_warnings.py` — chạy 2 lần cùng seed, so byte JSONL + kho, kiểm sắp id / làm tròn; chạy trước khi gắn tag.
 - Headless: `python3 -m chonoi.headless --mode gather|quan|day [--days 1..5] --seed 1 --ticks 600 --out out.jsonl`
 - Chơi thử trên trình duyệt: `python3 -m chonoi.live --mode gather|quan|day` (WASD/mũi tên, `E`, `Space`, `Esc`/`P`, `R`)
 
 ## Cấu trúc & quy ước
-- Khung đã nâng lên Contract v1.1: `chonoi/{headless,inputs,scenario,contract,rng,ids,jsonl,inventory,runner,live}.py` và `chonoi/web/`. Hạn chế sửa ngoài phạm vi lát của mình; khi đổi contract phải báo cả nhóm và cập nhật `docs/contracts/`.
+- Khung hiện ở Contract v1.3 (gameplay theo v1.2; điều kiện theo version viết dạng `in (...)`, không `==`): `chonoi/{headless,inputs,scenario,contract,rng,ids,jsonl,inventory,runner,live}.py` và `chonoi/web/`. Hạn chế sửa ngoài phạm vi lát của mình; khi đổi contract phải báo cả nhóm và cập nhật `docs/contracts/`.
 - Luật chơi của nhóm: `chonoi/sim/gather.py`, `chonoi/sim/quan.py`, `chonoi/sim/shop.py`.
 - **Số liệu chỉ đọc từ `game.contract.json` (`tuning`)**, không hard-code trong luật.
 - Mọi số ngẫu nhiên đi qua `Streams` (`chonoi/rng.py`); không dùng `random` toàn cục, không dùng đồng hồ hệ thống.

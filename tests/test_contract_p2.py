@@ -22,7 +22,7 @@ def contract():
 
 
 # v1.2 vẫn giữ toàn bộ luật P2 còn hiệu lực -> regression chạy ở cả 1.1 và 1.2.
-V11 = contract().get("contract_version") in ("1.1", "1.2")
+V11 = contract().get("contract_version") in ("1.1", "1.2", "1.3")
 need_v11 = unittest.skipUnless(V11, "chờ contract_version 1.1 (Phase 2)")
 
 

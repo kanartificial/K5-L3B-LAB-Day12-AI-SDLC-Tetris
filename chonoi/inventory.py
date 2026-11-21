@@ -22,8 +22,13 @@ ITEM_KEYS = {"id", "kind", "fresh"}
 FRESH_SCALE = 240  # 240 đơn vị / điểm tươi -> gather -2/tick (0.5/s), quan -1/tick (0.25/s)
 
 
+# v1.3 (Phase 4) chỉ thêm bench_cmd/soak_cmd: gameplay, tuning, kho và JSONL theo đúng v1.2.
+V12_PLUS = ("1.2", "1.3")
+
+
 def is_v12(contract_version: str) -> bool:
-    return contract_version == "1.2"
+    """True khi luật kho cá thể / độ tươi v1.2 có hiệu lực (v1.2 và v1.3)."""
+    return contract_version in V12_PLUS
 
 
 def to_fresh(val) -> Fraction:

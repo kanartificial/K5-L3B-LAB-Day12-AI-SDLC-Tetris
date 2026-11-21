@@ -157,7 +157,7 @@ def validate_tuning(t, version="1.1"):
             raise BadInput("tuning.day_plan phải có 5 Ngày ở v1.1+")
         if not isinstance(t.get("shop"), dict) or "upgrades" not in t["shop"]:
             raise BadInput("tuning.shop thiếu cấu hình upgrades ở v1.1+")
-    if version == "1.2" or "freshness" in t:
+    if version in ("1.2", "1.3") or "freshness" in t:
         fr = t.get("freshness")
         if not isinstance(fr, dict):
             raise BadInput("tuning.freshness phải là object ở v1.2")

@@ -104,7 +104,7 @@ def integration():
 
 def day():
     checks, cmds = [], []
-    if contract().get("contract_version") not in ("1.1", "1.2"):
+    if contract().get("contract_version") not in ("1.1", "1.2", "1.3"):
         checks.append(("contract_version ≥ 1.1", False, "còn 1.0 — mode day chưa bật"))
         return report("day.md", "Smoke mode day", checks, cmds)
     for days in (1, 5):

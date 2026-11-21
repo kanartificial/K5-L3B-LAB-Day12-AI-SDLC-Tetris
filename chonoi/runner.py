@@ -156,8 +156,13 @@ class DaySession:
     def _ev(self, tick, phase, day, name, data):
         return {"type": "event", "tick": tick, "phase": phase, "day": day, "name": name, "data": data}
 
+    def _plan(self, day_num):
+        """Kế hoạch của Ngày `day_num`. Soak v1.3: D1–D5 lặp ở Ngày 6–10 (Ngày 6 dùng D1, …)."""
+        cycle = len(self.day_plans)
+        return self.day_plans[(day_num - 1) % cycle + 1]
+
     def _plan_payload(self, day_num):
-        p = self.day_plans[day_num]
+        p = self._plan(day_num)
         return {"dishes": dict(p["dishes"]), "ingredients": dict(p["ingredients"])}
 
     def _start_day(self, day_num: int, tick: int) -> list:
@@ -226,7 +231,7 @@ class DaySession:
             if cur_phase == "gather":
                 inv = self.sim.inventory_items_raw() if self.v12 else self.sim.inventory_items()
                 q_sc = copy.deepcopy(self.scenario.get("quan", {}))
-                allowed = set(self.day_plans[self.day]["dishes"].keys())
+                allowed = set(self._plan(self.day)["dishes"].keys())
                 self.sim = QuanSim(
                     self.tuning, q_sc, self.streams, IdAllocator(),
                     inventory=inv, allowed_dishes=allowed,

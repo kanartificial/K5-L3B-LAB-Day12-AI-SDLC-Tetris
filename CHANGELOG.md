@@ -1,5 +1,32 @@
 # Changelog
 
+Ghi theo từng phase. Phiên bản phát hành **v1.0.0** = Phase 4 (Test Contract v1.3).
+
+## [v1.0.0 — Phase 4: Phát hành] (Contract v1.3) — 2026-11-21
+
+### Contract v1.3
+- `contract_version: "1.3"`. Khai ở gốc `game.contract.json`: `bench_cmd: "python3 -m chonoi.bench"`, `soak_cmd: "python3 -m chonoi.soak"`, `extensions: []`.
+- **Gameplay, tuning, kho và JSONL giữ nguyên v1.2.** `is_v12()` nhận cả `"1.2"` và `"1.3"`. Không có breaking change cho fixture hay file kho.
+
+### Mới
+- **Benchmark có render** (`chonoi/bench.py`): mở Chrome/Chromium/Edge headless ở cửa sổ 1280×720 trên cảnh buổi sáng lõi (độ tươi, cá bơi, Cá Sấu, Út Sen đứng yên ở bến), làm nóng 3 s rồi đo. Xuất `avg_fps`, `p1_low_fps`, `frames`, `measured_s`, `load_ms`.
+- **Soak headless** (`chonoi/soak.py` + bot tất định `chonoi/bot.py`): chạy N Ngày trong một tiến trình (gather → quan → shop), xuất `days`, `days_completed`, `crashes`, `results[]`, `duration_s`.
+- **Cảnh báo dễ nhận biết** (UI): `🫧 SẮP HẾT OXY` khi oxy < 25 % lúc lặn (trước đây chỉ báo khi đã hết), `🐊 THỦY QUÁI GẦN!` kèm ô “!” trên Cá Sấu, `😠 KHÁCH SẮP GIẬN` mới thêm (banner + ô “!” + chữ ở bàn).
+- **Chế độ tương phản cao**: phím `H`, nút “TƯƠNG PHẢN CAO” hoặc `?hc=1`. Nhớ lựa chọn trong trình duyệt.
+- `?play=1` vào thẳng cảnh, bỏ menu (dùng cho bench / chơi thử tự động).
+- README hướng dẫn chạy từ clone sạch bằng 3 lệnh. Thêm LICENSE (MIT cho phần nhóm viết) và CREDITS đầy đủ. Thêm release notes.
+
+### Sửa
+- `day` crash ở **Ngày 6** (`KeyError 6`): kế hoạch D1–D5 nay lặp ở Ngày 6–10 (`DaySession._plan`). Headless `--days` vẫn giới hạn 1..5 theo Test Contract.
+- `chonoi.live` không còn in traceback `ConnectionResetError` khi người chơi đóng tab.
+
+### Test & công cụ
+- `tests/test_contract_p4.py` (10 test): manifest v1.3, soak qua `soak_cmd` (6 Ngày, lặp kế hoạch, tất định, mã 2), công thức avg / 1% low, chạy thật `bench_cmd` (skip khi máy không có Chrome).
+- `tools/playtest_warnings.py` + `tools/ui_warnings.mjs`: chơi thử tự động 3 cảnh báo ở chế độ thường và tương phản cao qua Chrome DevTools Protocol, chụp ảnh.
+- Điều kiện chạy test P2/P3 và tool nhận `1.3` (dạng `in (...)`, không dùng `==`, theo hành động retro P3).
+
+---
+
 ## [v1.2 — Phase 3: Change Request “Mùa Nước Nổi”] — 2026-11-21
 
 ### Breaking Changes (khi bật `contract_version: "1.2"`)

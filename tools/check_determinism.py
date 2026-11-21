@@ -41,7 +41,7 @@ def headless_cmd():
 
 def v12():
     with open(os.path.join(ROOT, "game.contract.json"), encoding="utf-8") as f:
-        return json.load(f).get("contract_version") == "1.2"
+        return json.load(f).get("contract_version") in ("1.2", "1.3")
 
 
 def write_json(path, obj):
