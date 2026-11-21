@@ -154,6 +154,14 @@ def validate_tuning(t, version="1.1"):
             raise BadInput(f"menu.{dish_id}: price (nguyên) và cook_s phải > 0")
     if version != "1.0":
         if not isinstance(t.get("day_plan"), list) or len(t["day_plan"]) != 5:
-            raise BadInput("tuning.day_plan phải có 5 Ngày ở v1.1")
+            raise BadInput("tuning.day_plan phải có 5 Ngày ở v1.1+")
         if not isinstance(t.get("shop"), dict) or "upgrades" not in t["shop"]:
-            raise BadInput("tuning.shop thiếu cấu hình upgrades ở v1.1")
+            raise BadInput("tuning.shop thiếu cấu hình upgrades ở v1.1+")
+    if version == "1.2" or "freshness" in t:
+        fr = t.get("freshness")
+        if not isinstance(fr, dict):
+            raise BadInput("tuning.freshness phải là object ở v1.2")
+        _between("freshness.initial", fr.get("initial"), 1, 100)
+        _between("freshness.gather_decay_per_s", fr.get("gather_decay_per_s"), 0.001, 100)
+        _between("freshness.quan_decay_per_s", fr.get("quan_decay_per_s"), 0.001, 100)
+        _between("freshness.spoiled_below", fr.get("spoiled_below"), 0.001, fr["initial"])
