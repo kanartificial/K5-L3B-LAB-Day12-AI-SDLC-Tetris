@@ -6,7 +6,7 @@
 
 | Thành viên | GitHub handle | Module chính | Vai quy trình | Người dự phòng cho |
 |---|---|---|---|---|
-| Khổng Ngọc Anh | kanartificial | `sim/gather` | | |
+| Khổng Ngọc Anh | kanartificial | `sim/gather` | Integrator | `sim/quan` |
 | Võ Thị Kim Ý | KimY22-it | `sim/quan` | | |
 | Vương Thu Thảo | ThuThaoVuong | `client/ui` | QA Lead | |
 | Lý Hà Trân Trân | TranHa161 | `qa` | | |
