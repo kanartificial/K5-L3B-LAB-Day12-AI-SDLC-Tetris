@@ -2,3 +2,5 @@
 
 | Phase | Người | Công cụ / model | Việc | Token / chi phí ước tính | Ghi chú (AI sai ở đâu?) |
 |---|---|---|---|---|---|
+| 1 | TranHa161 (QA) | Claude Code (Claude Opus 5.5) | Tóm tắt việc QA Phase 1; chạy toàn bộ test; viết `tools/check_determinism.py` (5 kịch bản × 3 seed × 2 lần, so byte + kiểm định dạng §5); điền `docs/verification/phase-1.md`; lưu bằng chứng `docs/proof/phase-1/` | Không đo chính xác (1 phiên chat) | AI không đọc được PRD-0 trên lab board (phần yêu cầu mở theo giờ) nên AC lấy tạm từ `tests/test_smoke_p1.py`, phải đối chiếu lại. Lệnh test trong AGENTS.md (`PYTHONPATH=tests:.`) lỗi trên Windows, phải đổi sang `;`. |
+| 2 | TranHa161 (QA) | Claude Code (Claude Opus 5.5) | Từ TICKET-02 viết `tests/test_contract_p2.py` (30 test hộp đen v1.1, tự skip khi contract còn 1.0), `tools/smoke_p2.py` (smoke tích hợp phút 20 / day / regression), `docs/verification/phase-2.md` (theo mã AC-P2-01…07 của plan), câu hỏi clarify #3–7 | Không đo chính xác | AI không đọc được ticket trên lab board (database thuộc tổ chức khác) nên người phải dán đề vào. Một số giả định (vị trí `day_plan`/`shop`, `--ticks` khi pause) chưa được PO xác nhận. |
