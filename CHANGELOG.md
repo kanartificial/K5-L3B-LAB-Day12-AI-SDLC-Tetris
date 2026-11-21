@@ -23,8 +23,19 @@
 4. Scenario `quan.customers[].reserved`: đổi `{"ca_loc":1}` → `["I1"]` (hoặc bỏ trống để tự cấp theo tươi nhất rồi `id` nhỏ).
 
 ### Trạng thái tích hợp
-- Đã hoàn thiện adapter chọn schema theo `contract_version` (`chonoi/inventory.py`, `scenario.py`, `contract.py`, `headless.py`, `live.py`), độ tươi & cá thể trong `chonoi/sim/gather.py`, `chonoi/sim/shop.py`, `chonoi/runner.py` và 10 test v1.2 trong `tests/test_gather_p3.py` (ADR-0001).
-- Giữ `contract_version: "1.1"` trên `main` cho đến khi `chonoi/sim/quan.py` (`AC-P3-03`) hoàn tất để `main` luôn xanh.
+- **Đã bật `contract_version: "1.2"` trên `main`.** Adapter (`chonoi/inventory.py`, `scenario.py`, `contract.py`, `headless.py`, `live.py`), Gather, Quán, `runner.py` và `shop.py` cùng chạy schema cá thể (ADR-0001).
+- `QuanSim` nhận `contract_version` và chỉ bật độ tươi ở v1.2. Trước đây nó bật theo sự có mặt của `tuning.freshness`, nên khi manifest còn 1.1 thì `main` đỏ 18 test.
+
+### Sửa lỗi tích hợp khi bật v1.2
+- Quán từ chối file kho v1.2 hợp lệ (và `day` có hàng thoát mã 2) do `fresh` dạng `Fraction` từ adapter. `_load_fresh_stock` nay nhận `Fraction`.
+- `day` crash khi chuyển quán → Shop vì Shop nhận list id thay vì cá thể. Nay truyền `sort_by_id(stock.values())`.
+
+### Test & công cụ
+- Thêm `tests/test_contract_p3.py` (14 test hộp đen qua CLI): ví dụ ngưỡng 30, smoke bàn giao 2 tiến trình, round-trip file sát ngưỡng, mã 2, giữ nguyên đích khi chạm `--ticks`, giá theo tươi, giữ lại / `unfulfillable`, `day` → Shop → Ngày 2.
+- Thêm `tools/smoke_p3.py` (`threshold | integration | reject | day | regression | all`), ghi bằng chứng vào `docs/proof/phase-3/`.
+- `tools/check_determinism.py` chọn fixture theo `contract_version` và thêm kịch bản `day_hold_handoff`. `stock` v1.2 phải sắp theo id. Snapshot đầu được phép đứng sau các event tick 0 (thứ tự `day` từ P2).
+- `tools/smoke_p2.py day` chấp nhận cả 1.1 và 1.2.
+- **Test cũ đổi theo luật mới:** fixture P1/P2 chuyển sang kho cá thể và vẫn so theo kind/số lượng. 2 test thanh toán đổi giá 60 → 59 (giá theo tươi). `test_contract_p2` chạy ở cả 1.1/1.2 (trước đó tự skip 32 test). Chi tiết lý do ở `docs/verification/phase-3.md`.
 
 ---
 

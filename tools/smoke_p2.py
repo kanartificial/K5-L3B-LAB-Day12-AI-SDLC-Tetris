@@ -104,8 +104,8 @@ def integration():
 
 def day():
     checks, cmds = [], []
-    if contract().get("contract_version") != "1.1":
-        checks.append(("contract_version = 1.1", False, "còn 1.0 — mode day chưa bật"))
+    if contract().get("contract_version") not in ("1.1", "1.2"):
+        checks.append(("contract_version ≥ 1.1", False, "còn 1.0 — mode day chưa bật"))
         return report("day.md", "Smoke mode day", checks, cmds)
     for days in (1, 5):
         out = os.path.join(PROOF, f"day{days}.jsonl")

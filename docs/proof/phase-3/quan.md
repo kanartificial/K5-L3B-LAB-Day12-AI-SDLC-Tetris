@@ -15,5 +15,5 @@ Kết quả trên Windows với Python 3.13: **7/7 đạt**. Test gọi runner g
 
 ## Bàn giao tích hợp
 
-- Giữ manifest v1.1 khi các lát đang ghép. Khi adapter và Gather sẵn sàng, truyền kho cá thể `[{id,kind,fresh}]` vào `QuanSim` cùng `tuning.freshness`. Hàng đang giữ ở fixture Quán là mảng ID trong `customers[].reserved`.
-- Runner sang Shop lấy kho thực thể từ `QuanSim.stock_snapshot()`. HUD đọc kho cá thể từ snapshot Quán. Sau khi bật v1.2, chạy smoke thật qua cả hai tiến trình và mode `day`.
+- **Đã ghép trên v1.2.** `QuanSim(contract_version="1.2")` nhận kho cá thể từ `read_inventory` hoặc từ `day` với `fresh` dạng `Fraction`. Runner sang Shop truyền mảng cá thể sắp theo id.
+- Smoke thật qua hai tiến trình và mode `day`: [integration.md](integration.md), [day_hold.md](day_hold.md). Test hồi quy: `tests/test_contract_p3.py`. Test lát này nay truyền `contract_version="1.2"` cho runner.

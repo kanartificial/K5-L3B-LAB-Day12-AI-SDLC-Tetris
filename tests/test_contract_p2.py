@@ -13,7 +13,7 @@ import time
 import unittest
 from pathlib import Path
 
-from helpers import ROOT, Workdir, events, frames, read_jsonl, run_headless, snapshots, write_json
+from helpers import ROOT, Workdir, counts, events, frames, ids_of, inst, kinds_of, read_jsonl, run_headless, snapshots, write_json
 
 
 def contract():
@@ -21,7 +21,8 @@ def contract():
         return json.load(f)
 
 
-V11 = contract().get("contract_version") == "1.1"
+# v1.2 vẫn giữ toàn bộ luật P2 còn hiệu lực -> regression chạy ở cả 1.1 và 1.2.
+V11 = contract().get("contract_version") in ("1.1", "1.2")
 need_v11 = unittest.skipUnless(V11, "chờ contract_version 1.1 (Phase 2)")
 
 
@@ -191,7 +192,7 @@ class MonsterP2(unittest.TestCase):
             self.assertIn("invuln_ticks", s["player"])
 
     def test_p2_03_hit_loses_hp_half_hold_lifo_then_invulnerable(self):
-        hold = ["ca_loc", "bong_sung", "bong_sung", "ca_linh"]
+        hold = inst("ca_loc", "bong_sung", "bong_sung", "ca_linh")
         with Workdir() as w:
             sc = write_json(w.path("sc.json"), {"gather": {"random_fish": False, "hold": hold, "player": {"pos": [61, 24]}}})
             run_ok(self, "--mode", "gather", "--seed", "1", "--ticks", "80", "--scenario", sc, "--snapshot-every", "1",
@@ -202,13 +203,14 @@ class MonsterP2(unittest.TestCase):
             d = hits[0]["data"]
             self.assertEqual(d["monster_id"], "M1")
             self.assertEqual(d["hp"], 2)
-            self.assertEqual(d["lost"], ["ca_linh", "bong_sung"], "floor(4/2)=2, LIFO")
+            self.assertEqual(kinds_of(d["lost"]), ["ca_linh", "bong_sung"], "floor(4/2)=2, LIFO")
+            self.assertEqual(ids_of(d["lost"]), ["I4", "I3"], "v1.2: lost là cá thể theo thứ tự bỏ LIFO")
             after = {r["tick"]: r for r in snapshots(rows)}[hits[0]["tick"]]
             self.assertGreater(after["player"]["invuln_ticks"], 0)
 
     def test_p2_03_monster_faint_empties_hold(self):
         with Workdir() as w:
-            sc = write_json(w.path("sc.json"), {"gather": {"random_fish": False, "hold": ["ca_loc", "ca_loc"],
+            sc = write_json(w.path("sc.json"), {"gather": {"random_fish": False, "hold": inst("ca_loc", "ca_loc"),
                                                            "player": {"pos": [61, 24], "hp": 1}}})
             run_ok(self, "--mode", "gather", "--seed", "1", "--ticks", "10", "--scenario", sc, "--out", w.path("g.jsonl"))
             rows = read_jsonl(w.path("g.jsonl"))
@@ -217,7 +219,7 @@ class MonsterP2(unittest.TestCase):
             self.assertEqual(faint[0]["data"]["cause"], "monster")
             self.assertEqual(faint[0]["data"]["hp"], 0)
             self.assertEqual(events(rows, "gather_end")[0]["data"]["reason"], "fainted")
-            self.assertEqual(events(rows, "gather_end")[0]["data"]["inventory"], {"items": {}})
+            self.assertEqual(events(rows, "gather_end")[0]["data"]["inventory"], {"items": []})
 
 
 # ---------------------------------------------------------------- AC-P2-04 quán 2 bếp / 4 bàn / 6 món
@@ -232,7 +234,7 @@ class QuanP2(unittest.TestCase):
 
     def test_p2_04_customers_every_900_ticks_fill_lowest_table(self):
         with Workdir() as w:
-            inv = write_json(w.path("inv.json"), {"items": {"ca_loc": 9}})
+            inv = write_json(w.path("inv.json"), {"items": inst(*["ca_loc"] * 9)})
             run_ok(self, "--mode", "quan", "--seed", "1", "--ticks", "3000", "--inventory", inv, "--out", w.path("q.jsonl"))
             arr = events(read_jsonl(w.path("q.jsonl")), "customer_arrived")
             self.assertEqual([e["data"]["table_id"] for e in arr], ["T1", "T2", "T3", "T4"])
@@ -241,14 +243,14 @@ class QuanP2(unittest.TestCase):
 
     def test_p2_04_standalone_quan_uses_new_dishes(self):
         with Workdir() as w:
-            inv = write_json(w.path("inv.json"), {"items": {"ca_keo": 2}})
+            inv = write_json(w.path("inv.json"), {"items": inst("ca_keo", "ca_keo")})
             run_ok(self, "--mode", "quan", "--seed", "1", "--ticks", "200", "--inventory", inv, "--out", w.path("q.jsonl"))
             arr = events(read_jsonl(w.path("q.jsonl")), "customer_arrived")
             self.assertEqual([e["data"]["dish_id"] for e in arr], ["ca_keo_nuong"])
 
     def test_p2_04_new_kinds_accepted_in_inventory(self):
         with Workdir() as w:
-            inv = write_json(w.path("inv.json"), {"items": {"ca_keo": 1, "keo_neo": 1}})
+            inv = write_json(w.path("inv.json"), {"items": inst("ca_keo", "keo_neo")})
             run_ok(self, "--mode", "quan", "--seed", "1", "--ticks", "0", "--inventory", inv, "--out", w.path("q.jsonl"))
 
     def test_p2_04_invalid_orders_rejected_before_output(self):
@@ -272,11 +274,11 @@ class QuanP2(unittest.TestCase):
                     "order_status": "reserved", "order_tick": 0}
         cases = (
             ("ca_loc_nuong_trui", [], 2),
-            ("ca_keo_nuong", ["ca_keo", "ca_keo"], 2),
-            ("ca_loc_nuong_trui", ["ca_loc"], 0),
+            ("ca_keo_nuong", inst("ca_keo", "ca_keo"), 2),
+            ("ca_loc_nuong_trui", inst("ca_loc"), 0),
         )
         for dish_id, hold, expected in cases:
-            with self.subTest(dish=dish_id, hold=hold), Workdir() as w:
+            with self.subTest(dish=dish_id, hold=kinds_of(hold)), Workdir() as w:
                 scenario = {"gather": {"hold": hold, "random_fish": False},
                             "quan": {"customers": [dict(customer, dish_id=dish_id)]}}
                 out = Path(w.path("d.jsonl"))
@@ -289,8 +291,10 @@ class QuanP2(unittest.TestCase):
                 else:
                     snap = snapshots(rows)[-1]
                     self.assertEqual(snap["phase"], "quan")
-                    self.assertEqual(snap["stock"], {"ca_loc": 1})
-                    self.assertEqual(snap["customers"][0]["reserved"], {"ca_loc": 1})
+                    self.assertEqual(counts(snap["stock"]), {"ca_loc": 1})
+                    # v1.2: Ngày 1 giữ nguyên id mẫu gather.hold; reserved là mảng id
+                    self.assertEqual(ids_of(snap["stock"]), ["I1"])
+                    self.assertEqual(snap["customers"][0]["reserved"], ["I1"])
 
 
 # ---------------------------------------------------------------- AC-P2-01 CLI & scenario mode day (khung v1.1)
@@ -302,12 +306,12 @@ class DayCli(unittest.TestCase):
             for days in ("0", "6", "-1"):
                 self.assertEqual(run_headless("--mode", "day", "--days", days, "--seed", "1", "--ticks", "0", "--out", out)[0], 2, days)
             self.assertEqual(run_headless("--mode", "gather", "--days", "1", "--seed", "1", "--ticks", "0", "--out", out)[0], 2)
-            inv = write_json(w.path("inv.json"), {"items": {}})
+            inv = write_json(w.path("inv.json"), {"items": []})
             self.assertEqual(run_headless("--mode", "day", "--seed", "1", "--ticks", "0", "--inventory", inv, "--out", out)[0], 2)
 
     def test_p2_01_cli_day_scenario_rejections(self):
         with Workdir() as w:
-            for sc in ({"quan": {"stock": {"ca_loc": 1}}}, {"quan": {"reputation": 4.0}},
+            for sc in ({"quan": {"stock": inst("ca_loc")}}, {"quan": {"reputation": 4.0}},
                        {"day": {"money": 300, "earned": 200}}, {"day": {"money": -1, "earned": 0}}):
                 p = write_json(w.path("sc.json"), sc)
                 self.assertEqual(run_headless("--mode", "day", "--seed", "1", "--ticks", "0", "--scenario", p,
@@ -316,7 +320,7 @@ class DayCli(unittest.TestCase):
     def test_p2_01_cli_ticket_example_scenario_accepted(self):
         with Workdir() as w:
             p = write_json(w.path("sc.json"), {"day": {"money": 200, "earned": 200},
-                                               "gather": {"hold": ["ca_loc", "bong_sung", "bong_sung"], "random_fish": False}})
+                                               "gather": {"hold": inst("ca_loc", "bong_sung", "bong_sung"), "random_fish": False}})
             run_ok(self, "--mode", "day", "--seed", "1", "--ticks", "0", "--scenario", p, "--out", w.path("o.jsonl"))
 
 
@@ -376,7 +380,7 @@ class DayLoop(unittest.TestCase):
             self.assertEqual(m_ids.get(3), ["M1", "M2"])
 
     def test_p2_05_day_faint_still_opens_quan_with_empty_stock(self):
-        sc = {"gather": {"random_fish": False, "hold": ["ca_loc"], "player": {"pos": [61, 24], "hp": 1}}}
+        sc = {"gather": {"random_fish": False, "hold": inst("ca_loc"), "player": {"pos": [61, 24], "hp": 1}}}
         with Workdir() as w:
             code, err, rows = day_run(w, "d.jsonl", 200, scenario=sc)
             self.assertEqual(code, 0, err)

@@ -19,7 +19,7 @@ class QuanFreshness(unittest.TestCase):
         with Workdir() as work:
             out = work.path("quan.jsonl")
             run("quan", self.tuning, dict(scenario, customers=list(customers)), 1,
-                frames, ticks, out, 1, inventory=stock)
+                frames, ticks, out, 1, inventory=stock, contract_version="1.2")
             rows = read_jsonl(out)
             return events(rows), snapshots(rows)
 

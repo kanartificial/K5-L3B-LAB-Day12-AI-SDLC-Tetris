@@ -70,3 +70,27 @@ class Workdir:
 
     def path(self, name):
         return os.path.join(self._d.name, name)
+
+
+# ---------------------------------------------------------------- Contract v1.2: kho cá thể
+def inst(*kinds, start=1, fresh=100):
+    """Dựng hold/stock v1.2 từ danh sách kind: I<start>, I<start+1>… theo thứ tự (mặc định fresh 100)."""
+    return [{"id": f"I{start + i}", "kind": k, "fresh": fresh} for i, k in enumerate(kinds)]
+
+
+def kinds_of(items):
+    """Mảng cá thể -> mảng kind (giữ thứ tự) để so luật P1/P2 vốn tính theo kind."""
+    return [it["kind"] for it in items]
+
+
+def counts(payload):
+    """{"items":[cá thể]} hoặc mảng cá thể -> {kind: số lượng} sắp theo kind (dạng kho đếm cũ)."""
+    items = payload["items"] if isinstance(payload, dict) else payload
+    out = {}
+    for it in items:
+        out[it["kind"]] = out.get(it["kind"], 0) + 1
+    return {k: out[k] for k in sorted(out)}
+
+
+def ids_of(items):
+    return [it["id"] for it in items]
