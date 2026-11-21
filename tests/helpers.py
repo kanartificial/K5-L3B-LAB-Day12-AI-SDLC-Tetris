@@ -5,6 +5,7 @@ import math
 import os
 import shlex
 import subprocess
+import sys
 import tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -23,7 +24,11 @@ def frames(*fr):
 def headless_cmd():
     """Lệnh headless khai trong game.contract.json — test chạy qua đây nên dùng được với MỌI ngôn ngữ."""
     with open(os.path.join(ROOT, "game.contract.json"), encoding="utf-8") as f:
-        return shlex.split(json.load(f)["headless_cmd"])
+        command = shlex.split(json.load(f)["headless_cmd"])
+    # Windows có thể ánh xạ python3 vào Microsoft Store dù Python đã cài.
+    if os.name == "nt" and command == ["python3", "-m", "chonoi.headless"]:
+        command[0] = sys.executable
+    return command
 
 
 def run_headless(*args, cwd=ROOT):
