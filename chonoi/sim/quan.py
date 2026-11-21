@@ -71,7 +71,7 @@ class QuanSim:
     def snapshot(self) -> dict:
         occupied = {c["table_id"]: c["id"] for c in self.customers}
         return {
-            "player": {"pos": self.pos},
+            "player": {"pos": list(self.pos), "vel": list(self.vel)},
             "stock": {k: self.stock[k] for k in sorted(self.stock) if self.stock[k] > 0},
             "hand": self.hand,
             "stoves": [{k: s.get(k) for k in ("id", "pos", "state", "dish", "cook_ticks_left", "ready_ticks")}
