@@ -10,18 +10,18 @@
   --purple:#9b6bff;--green:#5dbe7a;--dark:#0b1e2c;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;background:#0a1a28;color:var(--cream);font:14px/1.4 system-ui,sans-serif}
+html,body{height:100%;background:#0a1a28;color:var(--cream);font:18px/1.4 system-ui,sans-serif}
 body{display:grid;place-items:center;padding:10px}
-.game{width:min(1100px,100%);border:4px solid #f3c96b;background:#183b50;box-shadow:0 0 0 4px #091c2a,0 14px 40px #06131dcc;position:relative}
+.game{width:min(1240px,100%);border:4px solid #f3c96b;background:#183b50;box-shadow:0 0 0 4px #091c2a,0 14px 40px #06131dcc;position:relative}
 .top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;background:#214c60;border-bottom:3px solid #0c293a}
-.brand{font-weight:900;letter-spacing:1px;color:#ffe29a;font-size:clamp(15px,2.2vw,22px);text-shadow:2px 2px #10283a}
-.sub{font-size:11px;color:#b9d6d7}
-.pill{border:2px solid #f4d184;background:#102d40;padding:5px 10px;font-weight:800;color:#ffe29a;font-size:13px}
+.brand{font-weight:900;letter-spacing:1px;color:#ffe29a;font-size:26px;text-shadow:2px 2px #10283a}
+.sub{font-size:18px;color:#b9d6d7}
+.pill{border:2px solid #f4d184;background:#102d40;padding:5px 10px;font-weight:800;color:#ffe29a;font-size:18px}
 main{padding:10px}
 .hud{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin-bottom:8px}
 .stat{background:#102d40;border:2px solid #37677a;padding:6px 8px;min-height:50px}
-.stat small{display:block;color:#9fc5c9;font-size:10px;text-transform:uppercase;letter-spacing:.5px}
-.stat strong{font-size:16px;color:#fff0c6}
+.stat small{display:block;color:#9fc5c9;font-size:18px;text-transform:uppercase;letter-spacing:.5px}
+.stat strong{font-size:22px;color:#fff0c6}
 .meter{height:8px;background:#071b29;border:1px solid #6e9298;margin-top:4px}
 .meter i{display:block;height:100%;background:var(--teal);width:0;transition:width .15s}
 .meter.warn i{background:var(--red)}
@@ -29,34 +29,34 @@ main{padding:10px}
 @keyframes blink{50%{opacity:.35}}
 .stage{position:relative;border:4px solid #eac36e;background:#0b2638;overflow:hidden}
 canvas{display:block;width:100%;height:auto;aspect-ratio:16/9;image-rendering:pixelated}
-.bottom{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:8px 4px 2px;color:#b8d4d5;font-size:12px}
+.bottom{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:8px 4px 2px;color:#b8d4d5;font-size:18px}
 .keys{color:#ffe29a;font-weight:800}
 .status{min-height:20px;color:#f6d98d}
 .events{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
-.event{background:#254e60;border:1px solid #497788;padding:3px 6px;font-size:11px;color:#d6e9df}
+.event{background:#254e60;border:1px solid #497788;padding:3px 6px;font-size:18px;color:#d6e9df}
 
 .overlay{position:absolute;inset:0;display:none;place-items:center;background:#071b29cc;z-index:20;text-align:center}
 .overlay.show{display:grid}
-.dialog{padding:20px 28px;background:#173b50;border:3px solid #f4cf77;box-shadow:5px 5px #071b29;max-width:520px;width:92%}
-.dialog h2{margin:0 0 10px;color:#ffe29a;font-size:22px}
-.dialog p,.dialog li{color:#d6e9df;margin:4px 0;font-size:14px}
+.dialog{max-height:100%;overflow:auto;padding:20px 28px;background:#173b50;border:3px solid #f4cf77;box-shadow:5px 5px #071b29;max-width:520px;width:92%}
+.dialog h2{margin:0 0 10px;color:#ffe29a;font-size:26px}
+.dialog p,.dialog li,.dialog div{color:#d6e9df;margin:4px 0;font-size:18px}
 .dialog ul{text-align:left;margin:8px 0 12px 18px}
-button{cursor:pointer;border:2px solid #ffe29a;background:#e6a94e;color:#173047;font-weight:900;padding:8px 14px;margin:5px 3px;font-size:13px}
+button{cursor:pointer;border:2px solid #ffe29a;background:#e6a94e;color:#173047;font-weight:900;padding:8px 14px;margin:5px 3px;font-size:18px}
 button:hover{background:#f6c65b}
 button.secondary{background:#2a5a6e;color:#ffe29a;border-color:#4cbdad}
 button.danger{background:#c45c52;color:#fff;border-color:#ed6b63}
 button:disabled{opacity:.45;cursor:not-allowed}
 
 .controls{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin-top:8px;padding:7px;background:#102d40;border:2px solid #37677a}
-.controls button{min-width:84px;padding:9px 10px;font-size:13px}
-.controls .key{display:block;font-size:9px;opacity:.7;margin-top:1px}
+.controls button{min-width:84px;padding:9px 10px;font-size:18px}
+.controls .key{display:block;font-size:18px;opacity:.8;margin-top:1px}
 
-.plan-box{background:#0e2a3a;border:2px solid #3a6a7a;padding:6px 8px;margin-top:6px;font-size:12px}
+.plan-box{background:#0e2a3a;border:2px solid #3a6a7a;padding:6px 8px;margin-top:6px;font-size:18px}
 .plan-box .need{color:#9fc5c9}
 .plan-box .ok{color:#5dbe7a}
 .plan-box .miss{color:#ed6b63}
 
-.warn-banner{position:absolute;top:8px;left:50%;transform:translateX(-50%);padding:6px 14px;font-weight:900;font-size:15px;z-index:10;border:2px solid;display:none}
+.warn-banner{position:absolute;top:8px;left:50%;transform:translateX(-50%);padding:6px 14px;font-weight:900;font-size:22px;z-index:10;border:2px solid;display:none}
 .warn-banner.show{display:block}
 .warn-oxy{background:#5a1a18;border-color:#ed6b63;color:#ffb0a8}
 .warn-monster{background:#2a185a;border-color:#9b6bff;color:#d4b8ff}
@@ -65,9 +65,12 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .shop-item{background:#102d40;border:2px solid #37677a;padding:10px}
 .shop-item h4{color:#ffe29a;margin-bottom:4px}
 .shop-item .price{color:#f6c65b;font-weight:800}
-.shop-item .owned{color:#5dbe7a;font-size:12px}
+.shop-item .owned{color:#5dbe7a;font-size:18px}
 
 #mainMenu .dialog{min-width:280px}
+#dayIntro,#eveningIntro,#dayResult{z-index:25}
+#pauseOverlay{z-index:26}
+#mainMenu,#summaryOverlay{z-index:30}
 
 @media(max-width:700px){
   .hud{grid-template-columns:repeat(3,1fr)}
@@ -117,7 +120,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
           <h2 id="introTitle">NGÀY 1</h2>
           <p>Má Tư nói:</p>
           <ul id="introList"></ul>
-          <p style="font-size:12px;opacity:.7">Tự chuyển sau 4 giây hoặc nhấn phím bất kỳ</p>
+          <p style="opacity:.8">Tự chuyển sau 4 giây hoặc nhấn phím bất kỳ</p>
         </div>
       </div>
 
@@ -158,6 +161,15 @@ button:disabled{opacity:.45;cursor:not-allowed}
           <h2>TẠM DỪNG</h2>
           <button id="btnResume">TIẾP TỤC</button>
           <button class="secondary" id="btnToMenu">VỀ MENU</button>
+        </div>
+      </div>
+
+      <!-- Summary (sau Ngày cuối) -->
+      <div class="overlay" id="summaryOverlay">
+        <div class="dialog">
+          <h2>TỔNG KẾT</h2>
+          <div id="summaryText"></div>
+          <button id="btnSummaryMenu">VỀ MENU</button>
         </div>
       </div>
 
@@ -240,7 +252,8 @@ function dishLabel(obj) {
 
 /* ========== INPUT ========== */
 function sendInput(extra = {}) {
-  const mode = snap?.mode || snap?.phase || "gather";
+  // --mode day: snap.mode là "day", pha thật nằm ở snap.phase (quan cần đảo trục z)
+  const mode = snap?.phase || snap?.mode || "gather";
   const x = (held.has("r") ? 1 : 0) - (held.has("l") ? 1 : 0);
   let y = (held.has("d") ? 1 : 0) - (held.has("u") ? 1 : 0);
   if (mode === "quan" || mode === "shop") y = -y;
@@ -261,10 +274,39 @@ function sendInput(extra = {}) {
   }).catch(()=>{});
 }
 
+/* pause là nút cạnh lên (TICKET-02 §4.2): mỗi lần nhấp true→false đảo trạng thái pause của mô phỏng.
+   setSimPaused chỉ nhấp khi trạng thái thật khác mong muốn, chặn nhấp đôi trong lúc chờ snapshot mới. */
+let pauseLockUntil = 0;
+function pulsePause() {
+  sendInput({pause: true});
+  setTimeout(() => sendInput(), 60);
+}
+function setSimPaused(want) {
+  if (!snap || snap.finished || Date.now() < pauseLockUntil) return;
+  if ((snap.state === "paused") !== want) {
+    pauseLockUntil = Date.now() + 350;
+    pulsePause();
+  }
+}
+// Khi còn pause, mô phỏng bỏ qua cạnh hành động và buy (TICKET-02 §4.2) → đợi mô phỏng chạy lại rồi mới gửi.
+function whenRunning(fn, tries = 30) {
+  if (tries > 0 && (snap?.state === "paused" || Date.now() < pauseLockUntil)) setTimeout(() => whenRunning(fn, tries - 1), 100);
+  else fn();
+}
+function screenOpen() {
+  return ["mainMenu", "dayIntro", "eveningIntro", "dayResult"].some(id => $(id).classList.contains("show"));
+}
+// Trạng thái pause mong muốn suy từ giao diện; updateAll đối chiếu mỗi lần poll nên yêu cầu bị khóa vẫn được bù sau.
+function wantPaused() {
+  return uiPhase === "menu" || screenOpen() || $("pauseOverlay").classList.contains("show");
+}
+
 function press(name) {
-  held.add(name);
-  sendInput({[name]: true});
-  setTimeout(() => { held.delete(name); sendInput(); }, 70);
+  whenRunning(() => {
+    held.add(name);
+    sendInput({[name]: true});
+    setTimeout(() => { held.delete(name); sendInput(); }, 70);
+  });
 }
 
 $("btnInteract").onclick = () => press("interact");
@@ -275,10 +317,11 @@ $("btnPlay").onclick = () => startGame();
 $("btnExit").onclick = () => { try { window.close(); } catch(e) {} alert("Đóng tab để thoát."); };
 $("btnResume").onclick = () => resume();
 $("btnToMenu").onclick = () => goMenu();
-$("btnStartQuan").onclick = () => $("eveningIntro").classList.remove("show");
-$("btnToShop").onclick = () => $("dayResult").classList.remove("show");
-$("btnCloseShop").onclick = () => sendInput({shop_done: true});
+$("btnStartQuan").onclick = () => closeScreen("eveningIntro");
+$("btnToShop").onclick = () => closeScreen("dayResult");
+$("btnCloseShop").onclick = () => whenRunning(() => { sendInput({shop_done: true}); setTimeout(() => sendInput(), 60); });  // nút cạnh lên: nhấn rồi nhả
 $("btnRestart").onclick = () => restart();
+$("btnSummaryMenu").onclick = () => { $("summaryOverlay").classList.remove("show"); restart().then(goMenu); };
 
 /* ========== KEYBOARD ========== */
 addEventListener("keydown", e => {
@@ -289,6 +332,13 @@ addEventListener("keydown", e => {
   }
   if (uiPhase === "dayintro") {
     advanceIntro();
+    return;
+  }
+  if (uiPhase === "screen") {
+    if (k === "enter" || k === " " || k === "e") {
+      e.preventDefault();
+      ["eveningIntro", "dayResult"].forEach(id => { if ($(id).classList.contains("show")) closeScreen(id); });
+    }
     return;
   }
   if (k === "escape" || k === "p") {
@@ -322,33 +372,100 @@ function goMenu() {
   uiPhase = "menu";
   $("pauseOverlay").classList.remove("show");
   $("mainMenu").classList.add("show");
-  sendInput({pause: false});
+  setSimPaused(true);  // đồng hồ không chạy sau menu chính
 }
 function togglePause() {
-  if (uiPhase === "menu") return;
+  if (uiPhase === "menu" || screenOpen()) return;
   if ($("pauseOverlay").classList.contains("show")) resume();
   else {
     $("pauseOverlay").classList.add("show");
-    sendInput({pause: true});
+    setSimPaused(true);
   }
 }
 function resume() {
   $("pauseOverlay").classList.remove("show");
-  sendInput({pause: false});
+  setSimPaused(false);
+}
+function closeScreen(id) {
+  $(id).classList.remove("show");
+  if (!screenOpen()) { uiPhase = "playing"; setSimPaused(false); }
+}
+function openScreen(id) {
+  $(id).classList.add("show");
+  uiPhase = id === "dayIntro" ? "dayintro" : "screen";
+  setSimPaused(true);  // DayIntro / EveningIntro / DayResult không ăn giờ chơi
 }
 async function restart() {
   held.clear();
+  resetTracking();
   try {
     await fetch("/restart", {method: "POST"});
-    ["endOverlay","dayIntro","eveningIntro","dayResult","shopOverlay","pauseOverlay"]
+    ["endOverlay","dayIntro","eveningIntro","dayResult","shopOverlay","pauseOverlay","summaryOverlay"]
       .forEach(id => $(id).classList.remove("show"));
+    if (uiPhase !== "menu") uiPhase = "playing";
     $("status").textContent = "Đã bắt đầu lượt mới.";
   } catch(e) {}
 }
 function advanceIntro() {
   if (introTimer) clearTimeout(introTimer);
-  $("dayIntro").classList.remove("show");
-  uiPhase = "playing";
+  closeScreen("dayIntro");
+}
+
+/* ========== THEO DÕI SỰ KIỆN (DayResult / Summary) ==========
+   /state chỉ trả 40 event gần nhất, poll 90 ms nên không sót; khử trùng theo (tick, name, data). */
+let seen = new Set(), lastPhase = null, lastDay = null;
+let dayStats = null, totals = null;
+function newDayStats(rep) { return {served: 0, left: 0, paid: 0, tips: 0, repStart: rep, repEnd: rep}; }
+function resetTracking() {
+  seen = new Set(); lastPhase = null; lastDay = null;
+  dayStats = newDayStats(3.0); totals = {sold: {}, served: 0, left: 0};
+}
+resetTracking();
+function trackEvents() {
+  for (const e of (snap.events || [])) {
+    const key = `${e.day ?? ""}|${e.tick}|${e.name}|${JSON.stringify(e.data)}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const d = e.data || {};
+    if (e.name === "day_start") dayStats = newDayStats(snap.reputation ?? 3.0);
+    else if (e.name === "served") { dayStats.served++; totals.served++; totals.sold[d.dish_id] = (totals.sold[d.dish_id] || 0) + 1; }
+    else if (e.name === "customer_left" && d.reason === "patience") { dayStats.left++; totals.left++; }
+    else if (e.name === "paid") { dayStats.paid += d.amount || 0; dayStats.tips += d.tip || 0; }
+    else if (e.name === "quan_end") dayStats.repEnd = d.reputation ?? dayStats.repEnd;
+  }
+}
+function onPhaseChange(phase, day) {
+  if (phase === "gather" && snap.day_plan && uiPhase !== "menu") showDayIntro(day, snap.day_plan);
+  else if (phase === "quan" && snap.mode === "day") showEveningIntro();
+  else if (phase === "shop") showDayResult(day);
+}
+function showEveningIntro() {
+  const stock = snap.stock || {}, menu = snap.menu || {};
+  const planned = Object.keys(snap.day_plan?.dishes || menu);
+  $("eveningStock").innerHTML = Object.entries(stock).map(([k, n]) => `<li>${n} × ${names[k] || k}</li>`).join("")
+    || "<li>Kho trống</li>";
+  const ok = planned.filter(id => Object.entries(menu[id]?.recipe || {}).every(([k, n]) => (stock[k] || 0) >= n));
+  $("eveningDishes").innerHTML = ok.map(id => `<li>${dishNames[id] || id}</li>`).join("")
+    || "<li>Không nấu được món nào trong kế hoạch</li>";
+  openScreen("eveningIntro");
+}
+function showDayResult(day) {
+  const s = dayStats, dRep = (s.repEnd - s.repStart);
+  $("resultText").innerHTML =
+    `<p>Ngày ${day}: phục vụ <strong>${s.served}</strong> khách · bỏ đi <strong>${s.left}</strong></p>` +
+    `<p>Thu: <strong>${s.paid}</strong> xu (boa ${s.tips})</p>` +
+    `<p>Uy tín: ${Number(s.repStart).toFixed(1)} → ${Number(s.repEnd).toFixed(1)} (${dRep >= 0 ? "+" : ""}${dRep.toFixed(1)})</p>`;
+  openScreen("dayResult");
+}
+function showSummary() {
+  const best = Object.entries(totals.sold).sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1))[0];
+  $("summaryText").innerHTML =
+    `<p>Hoàn thành ${snap.days_completed ?? snap.day ?? "—"} Ngày</p>` +
+    `<p>Tổng tiền: <strong>${snap.money ?? 0}</strong> xu · Tổng thu: ${snap.earned ?? 0} xu</p>` +
+    `<p>Tổng điểm: <strong>${snap.score ?? 0}</strong> · Uy tín: ${Number(snap.reputation ?? 0).toFixed(1)}/5</p>` +
+    `<p>Phục vụ ${totals.served} khách · bỏ đi ${totals.left}</p>` +
+    `<p>Món bán chạy: <strong>${best ? `${dishNames[best[0]] || best[0]} (${best[1]} suất)` : "—"}</strong></p>`;
+  $("summaryOverlay").classList.add("show");
 }
 
 /* ========== POLL ========== */
@@ -400,18 +517,21 @@ function updateAll() {
   $("meterTimeBar").style.width = `${tFrac * 100}%`;
   $("meterTime").className = "meter" + (tLeft <= 30 * 60 ? " warn" : "");
 
-  if (paused) $("pauseOverlay").classList.add("show");
-  else if (uiPhase !== "menu") $("pauseOverlay").classList.remove("show");
-
-  if (phase === "gather" && snap.phase_tick === 0 && snap.day_plan &&
-      !$("dayIntro").classList.contains("show") && uiPhase !== "menu") {
-    showDayIntro(day, snap.day_plan);
+  trackEvents();
+  if (uiPhase !== "menu" && !finished && (phase !== lastPhase || day !== lastDay)) {
+    lastPhase = phase; lastDay = day;
+    onPhaseChange(phase, day);
   }
 
-  if (phase === "shop") showShop();
+  // Menu chính, DayIntro/EveningIntro/DayResult và khung Tạm dừng giữ mô phỏng đứng yên (kể cả đồng hồ Shop)
+  if (!finished) setSimPaused(wantPaused());
+
+  if (phase === "shop" && !finished) showShop();
   else $("shopOverlay").classList.remove("show");
 
-  if (finished && phase !== "shop") {
+  if (finished && snap.mode === "day") {
+    if (!$("summaryOverlay").classList.contains("show")) showSummary();
+  } else if (finished && phase !== "shop") {
     $("endOverlay").classList.add("show");
     $("endTitle").textContent = phase === "gather" ? "KẾT THÚC BUỔI SÁNG" : "ĐÓNG CỬA";
     $("endText").textContent = `Lý do: ${snap.reason || "—"} · Điểm: ${snap.score ?? 0} · Tiền: ${snap.money ?? 0}`;
@@ -444,8 +564,7 @@ function showDayIntro(day, plan) {
     html += `<li>${n} × ${names[k] || k}</li>`;
   }
   $("introList").innerHTML = html;
-  $("dayIntro").classList.add("show");
-  uiPhase = "dayintro";
+  openScreen("dayIntro");
   if (introTimer) clearTimeout(introTimer);
   introTimer = setTimeout(advanceIntro, 4000);
 }
@@ -487,7 +606,7 @@ function showShop() {
     grid.appendChild(div);
   }
   grid.querySelectorAll("[data-buy]").forEach(btn => {
-    btn.onclick = () => sendInput({buy: btn.dataset.buy});
+    btn.onclick = () => whenRunning(() => sendInput({buy: btn.dataset.buy}));
   });
 }
 
@@ -590,7 +709,9 @@ function rect(x, y, w, h, c) {
 }
 function txt(s, x, y, size = 14, color = "#fff0c6", align = "left") {
   s = String(s ?? "");
-  ctx.font = `bold ${size}px monospace`;
+  // Canvas 960 px hiển thị ~1.15× ở 1280×720 → tối thiểu 17 px nội bộ ≈ 19.5 px trên màn hình (yêu cầu ≥ 18 px, chữ không chân)
+  size = Math.max(size, 17);
+  ctx.font = `bold ${size}px system-ui, sans-serif`;
   ctx.textAlign = align;
   ctx.fillStyle = "#173047";
   ctx.fillText(s, x + 2, y + 2);
@@ -742,7 +863,7 @@ function drawQuan() {
     txt(label, x, y + 36, 11, "#fff0c6", "center");
 
     if (st.dish) {
-      const name = dishLabel(st.dish).slice(0, 14);
+      const name = dishLabel(st.dish).slice(0, 9);
       if (name && name !== "trống") txt(name, x, y - 30, 10, "#fff0c6", "center");
     }
   });
@@ -760,11 +881,12 @@ function drawQuan() {
     if (c) {
       rect(x - 8, y - 40, 16, 16, c.state === "eating" ? "#72b96e" : "#e9a4a9");
       rect(x - 11, y - 26, 22, 17, "#426d92");
-      txt(dishLabel(c.dish_id || c).slice(0, 14), x, y - 48, 10, "#173047", "center");
+      const full = dishLabel(c.dish_id || c);
+      txt(full.length > 15 ? full.slice(0, 14) + "…" : full, x, y - 48, 17, "#fff0c6", "center");
       const max = (m.patience_s || 60) * 60;
       const frac = Math.max(0, Math.min(1, (c.patience_ticks_left ?? max) / max));
-      rect(x - 20, y - 6, 40, 5, "#563b35");
-      rect(x - 20, y - 6, 40 * frac, 5, frac < 0.25 ? "#ed6b63" : "#e76e67");
+      rect(x - 24, y + 20, 48, 7, "#563b35");
+      rect(x - 24, y + 20, 48 * frac, 7, frac < 0.25 ? "#ed6b63" : "#5dbe7a");  // < 25% kiên nhẫn đổi màu đỏ
     }
   });
 
@@ -783,15 +905,17 @@ function drawQuan() {
   (snap.customers || []).forEach(c =>
     Object.entries(c.reserved || {}).forEach(([k, v]) => reserved[k] = (reserved[k] || 0) + v)
   );
-  const stockStr = Object.entries(snap.stock || {})
-    .map(([k, v]) => `${names[k] || k} ${Math.max(0, v - (reserved[k] || 0))}`)
-    .join(" · ") || "Kho trống";
+  const stockItems = Object.entries(snap.stock || {})
+    .map(([k, v]) => `${names[k] || k} ${Math.max(0, v - (reserved[k] || 0))}`);
 
-  panel(18, 455, 924, 68);
-  txt("KHO KHẢ DỤNG", 28, 478, 12);
-  txt(stockStr, 28, 502, 12, "#fff0c6");
-  txt(`Tay: ${dishLabel(snap.hand)}`, 920, 478, 12, "#ffe29a", "right");
-  txt("WASD · E nấu/lấy/phục vụ", 920, 505, 12, "#ffe29a", "right");
+  panel(18, 448, 924, 84);
+  txt("KHO KHẢ DỤNG", 28, 472, 17);
+  txt(`Tay: ${dishLabel(snap.hand)}`, 920, 472, 17, "#ffe29a", "right");
+  if (!stockItems.length) txt("Kho trống", 28, 498, 17, "#fff0c6");
+  else {
+    txt(stockItems.slice(0, 3).join(" · "), 28, 498, 17, "#fff0c6");
+    if (stockItems.length > 3) txt(stockItems.slice(3).join(" · "), 28, 522, 17, "#fff0c6");
+  }
 }
 
 function drawShop() {
