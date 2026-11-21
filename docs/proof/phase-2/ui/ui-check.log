@@ -1,0 +1,30 @@
+ĐẠT · Menu chính hiện, đồng hồ đứng yên (10612 → 10612, state paused)
+ĐẠT · DayIntro Ngày 1 hiện, mô phỏng tạm dừng (paused)
+ĐẠT · DayIntro tự đóng sau 4 s, chơi tiếp
+ĐẠT · Pause: khung Tạm dừng hiện, đồng hồ đứng (10744 → 10744)
+ĐẠT · Nút Tiếp tục bỏ pause thật (state playing)
+ĐẠT · Ngày 1: EveningIntro hiện, quán chờ (paused)
+ĐẠT · Ngày 1: DayResult hiện khi sang Shop {"phase":"shop","day":1,"st":"playing","fin":false,"t":600,"ui":"screen","open":["dayResult","shopOverlay"]}
+ĐẠT · Shop: mua Bình oxy cấp 1 (upgrades {"oxygen":1})
+ĐẠT · sau đóng shop ngày 1: {"phase":"gather","day":2,"st":"playing","fin":false,"t":10794,"ui":"dayintro","open":["dayIntro"]}
+ĐẠT · Ngày 2 áp dụng Bình oxy cấp 1: oxy tối đa 2700 tick (cần 2700)
+ĐẠT · DayIntro Ngày 2 {"phase":"gather","day":2,"st":"paused","fin":false,"t":10794,"ui":"dayintro","open":["dayIntro"]}
+ĐẠT · Ngày 2: EveningIntro hiện, quán chờ (paused)
+ĐẠT · Ngày 2: DayResult hiện khi sang Shop {"phase":"shop","day":2,"st":"playing","fin":false,"t":597,"ui":"screen","open":["dayResult","shopOverlay"]}
+ĐẠT · sau đóng shop ngày 2: {"phase":"gather","day":3,"st":"paused","fin":false,"t":10795,"ui":"dayintro","open":["dayIntro"]}
+ĐẠT · DayIntro Ngày 3 {"phase":"gather","day":3,"st":"paused","fin":false,"t":10795,"ui":"dayintro","open":["dayIntro"]}
+ĐẠT · Ngày 3: EveningIntro hiện, quán chờ (paused)
+ĐẠT · Ngày 3: DayResult hiện khi sang Shop {"phase":"shop","day":3,"st":"playing","fin":false,"t":598,"ui":"screen","open":["dayResult","shopOverlay"]}
+ĐẠT · sau đóng shop ngày 3: {"phase":"gather","day":4,"st":"paused","fin":false,"t":10795,"ui":"dayintro","open":["dayIntro"]}
+ĐẠT · DayIntro Ngày 4 {"phase":"gather","day":4,"st":"paused","fin":false,"t":10795,"ui":"dayintro","open":["dayIntro"]}
+ĐẠT · Ngày 4: EveningIntro hiện, quán chờ (paused)
+ĐẠT · Ngày 4: DayResult hiện khi sang Shop {"phase":"shop","day":4,"st":"playing","fin":false,"t":599,"ui":"screen","open":["dayResult","shopOverlay"]}
+ĐẠT · sau đóng shop ngày 4: {"phase":"gather","day":5,"st":"paused","fin":false,"t":10794,"ui":"dayintro","open":["dayIntro"]}
+ĐẠT · DayIntro Ngày 5 {"phase":"gather","day":5,"st":"paused","fin":false,"t":10794,"ui":"dayintro","open":["dayIntro"]}
+ĐẠT · Ngày 5: EveningIntro hiện, quán chờ (paused)
+ĐẠT · Ngày 5: DayResult hiện khi sang Shop {"phase":"shop","day":5,"st":"playing","fin":false,"t":595,"ui":"screen","open":["dayResult","shopOverlay"]}
+ĐẠT · sau đóng shop ngày 5: {"phase":"shop","day":5,"st":"finished","fin":true,"t":570,"ui":"playing","open":["summaryOverlay"]}
+ĐẠT · Summary hiện sau Ngày 5
+ĐẠT · Summary: Hoàn thành 5 Ngày | Tổng tiền: 100 xu · Tổng thu: 300 xu | Tổng điểm: 600 · Uy tín: 3.0/5 | Phục vụ 0 khách · bỏ đi 0 | Món bán chạy: —
+ĐẠT · Chữ HTML đang hiển thị < 18 px: không có
+ĐẠT · Chữ canvas nhỏ nhất 17 px × tỉ lệ 1.254 = 21.3 px

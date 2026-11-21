@@ -1,8 +1,8 @@
-"""Vòng tick (Contract B v1.0 & §4.2–4.5 v1.1): hỗ trợ gather, quan, day và pause/resumed.
+"""Vòng tick (Contract v1.0 / v1.1 / v1.2): hỗ trợ gather, quan, day, Shop và pause/resumed.
 
-Thứ tự ghi: event tick 0 (nếu có, vd mode day) -> snapshot tick 0 -> với mỗi bước:
-sự kiện (theo thứ tự xử lý) rồi snapshot (nếu tới lượt, đổi pha, mua nâng cấp hoặc kết thúc) -> dòng 'end'.
-Mỗi tick tối đa một snapshot.
+- Hỗ trợ truyền `contract_version` xuống GatherSim / QuanSim / ShopSim / write_inventory.
+- Ở chế độ `day` (v1.2): dùng chung `self.item_ids = IdAllocator()` xuyên pha & xuyên Ngày để id cá thể
+  `I1, I2…` tăng đơn điệu không trùng; bàn giao `gather -> quan` ngay cùng tick không hao thêm.
 """
 
 import copy
@@ -12,7 +12,7 @@ from tempfile import TemporaryDirectory
 
 from .ids import IdAllocator
 from .inputs import InputPlayer
-from .inventory import write_inventory
+from .inventory import is_v12, write_inventory
 from .jsonl import JsonlWriter
 from .rng import Streams
 from .sim.gather import GatherSim
@@ -20,10 +20,10 @@ from .sim.quan import QuanSim
 from .sim.shop import ShopSim
 
 
-def build_sim(mode, tuning, scenario, seed, inventory):
+def build_sim(mode, tuning, scenario, seed, inventory, contract_version="1.1"):
     streams, ids = Streams(seed), IdAllocator()
     if mode == "gather":
-        return GatherSim(tuning, scenario, streams, ids)
+        return GatherSim(tuning, scenario, streams, ids, contract_version=contract_version)
     return QuanSim(tuning, scenario, streams, ids, inventory=inventory)
 
 
@@ -41,10 +41,11 @@ def _common(sim, tick, sim_tick, phase_tick, tuning, state, mode_override=None):
 class Session:
     """Một lượt chơi độc lập (`gather` hoặc `quan`) với hỗ trợ `pause`/`resumed`."""
 
-    def __init__(self, mode, tuning, scenario, seed, inventory=None):
+    def __init__(self, mode, tuning, scenario, seed, inventory=None, contract_version="1.1"):
         self.mode = mode
         self.tuning = tuning
-        self.sim = build_sim(mode, tuning, scenario, seed, inventory)
+        self.contract_version = contract_version
+        self.sim = build_sim(mode, tuning, scenario, seed, inventory, contract_version=contract_version)
         self.tick = 0
         self.sim_tick = 0
         self.phase_tick = 0
@@ -99,17 +100,20 @@ class Session:
     def write_inventory_if_done(self, inventory_out):
         """File kho: ghi MỘT lần khi có gather_end; chưa kết thúc thì giữ nguyên file đích."""
         if self.mode == "gather" and self.sim.done and inventory_out:
-            write_inventory(inventory_out, self.sim.inventory_items())
+            write_inventory(inventory_out, self.sim.inventory_items(), contract_version=self.contract_version)
 
 
 class DaySession:
     """Chế độ `--mode day --days 1..5`: vòng gather -> quan -> shop -> Ngày kế + pause."""
 
-    def __init__(self, tuning, scenario, seed, days=1):
+    def __init__(self, tuning, scenario, seed, days=1, contract_version="1.1"):
         self.mode = "day"
         self.tuning = tuning
+        self.contract_version = contract_version
+        self.v12 = is_v12(contract_version)
         self.scenario = scenario or {"day": {}, "gather": {}, "quan": {}}
         self.streams = Streams(seed)
+        self.item_ids = IdAllocator()  # duy trì xuyên pha & xuyên Ngày cho họ id cá thể `I`
         self.days_target = int(days)
         self.days_completed = 0
         self.tick = 0
@@ -165,6 +169,9 @@ class DaySession:
             self.tuning, g_sc, self.streams, IdAllocator(),
             day=day_num, active_upgrades=self.active_upgrades,
             money=self.money, earned=self.earned, reputation=self.reputation,
+            contract_version=self.contract_version,
+            item_ids=self.item_ids,
+            reassign_hold_ids=(day_num > 1),
         )
         return [
             self._ev(tick, "gather", day_num, "day_start", {}),
@@ -214,10 +221,10 @@ class DaySession:
         self.earned = self.sim.earned
         self.reputation = self.sim.reputation
 
-        # Chuyển pha ngay cùng tick khi pha hiện tại kết thúc (mục 4.5)
+        # Chuyển pha ngay cùng tick khi pha hiện tại kết thúc (mục 4.5 / v1.2 mục 1)
         if self.sim.done:
             if cur_phase == "gather":
-                inv = self.sim.inventory_items()
+                inv = self.sim.inventory_items_raw() if self.v12 else self.sim.inventory_items()
                 q_sc = copy.deepcopy(self.scenario.get("quan", {}))
                 allowed = set(self.day_plans[self.day]["dishes"].keys())
                 self.sim = QuanSim(
@@ -229,9 +236,10 @@ class DaySession:
                 self.just_changed_phase = True
                 rows.append(self._ev(self.tick, "quan", self.day, "phase_start", {}))
             elif cur_phase == "quan":
-                leftover = dict(self.sim.stock)
+                leftover = list(self.sim.stock) if isinstance(self.sim.stock, list) else dict(self.sim.stock)
                 self.sim = ShopSim(
                     self.tuning, leftover, self.money, self.earned, self.reputation, self.upgrades,
+                    contract_version=self.contract_version,
                 )
                 self.phase_tick = 0
                 self.just_changed_phase = True
@@ -262,16 +270,16 @@ class DaySession:
 
 
 def run(mode, tuning, scenario, seed, frames, ticks, out_path, snapshot_every,
-        inventory=None, inventory_out=None, days=1):
+        inventory=None, inventory_out=None, days=1, contract_version="1.1"):
     if mode == "day":
-        sess = DaySession(tuning, scenario, seed, days=days)
+        sess = DaySession(tuning, scenario, seed, days=days, contract_version=contract_version)
         # Lỗi fixture Quán có thể chỉ xuất hiện khi đã biết kho cuối buổi sáng.
         with TemporaryDirectory(dir=os.path.dirname(os.path.abspath(out_path))) as tmp:
             draft = os.path.join(tmp, "day.jsonl")
             _write_session(sess, frames, ticks, draft, snapshot_every)
             os.replace(draft, out_path)
     else:
-        sess = Session(mode, tuning, scenario, seed, inventory)
+        sess = Session(mode, tuning, scenario, seed, inventory, contract_version=contract_version)
         _write_session(sess, frames, ticks, out_path, snapshot_every)
     sess.write_inventory_if_done(inventory_out)
     return sess.sim

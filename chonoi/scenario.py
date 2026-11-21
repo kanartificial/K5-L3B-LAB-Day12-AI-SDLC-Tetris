@@ -9,7 +9,7 @@ import json
 import math
 
 from .errors import BadInput
-from .inventory import KINDS_V11, validate_items
+from .inventory import KINDS_V11, is_v12, validate_item_instances, validate_items
 
 GATHER_KEYS = {"player", "hold", "nodes", "fish", "monsters", "random_fish", "time_left_ticks"}
 GATHER_PLAYER_KEYS = {"pos", "vel", "heading_deg", "hp", "oxygen_ticks", "zero_oxy_ticks",
@@ -54,7 +54,7 @@ def _pos(name, pos, bounds, axes=("x", "d")):
             raise BadInput(f"{name} nằm ngoài vùng ({axis} ∈ [{lo}, {hi}])")
 
 
-def load_scenario(path, mode: str, tuning: dict) -> dict:
+def load_scenario(path, mode: str, tuning: dict, contract_version: str = "1.1") -> dict:
     if path is None:
         return {"day": {}, "gather": {}, "quan": {}} if mode == "day" else {}
     try:
@@ -75,14 +75,14 @@ def load_scenario(path, mode: str, tuning: dict) -> dict:
         _validate_day(day_b, tuning)
         if gather_b:
             _check_block_keys("gather", gather_b, GATHER_KEYS, tuning)
-            _validate_gather(gather_b, tuning, upgrades=day_b.get("upgrades"))
+            _validate_gather(gather_b, tuning, upgrades=day_b.get("upgrades"), contract_version=contract_version)
         if quan_b:
             if "stock" in quan_b:
                 raise BadInput("cấm khai quan.stock khi chạy --mode day")
             if "reputation" in quan_b:
                 raise BadInput("cấm khai quan.reputation khi chạy --mode day")
             _check_block_keys("quan", quan_b, QUAN_KEYS, tuning)
-            _validate_quan(quan_b, tuning)
+            _validate_quan(quan_b, tuning, contract_version=contract_version)
         return {"day": day_b, "gather": gather_b, "quan": quan_b}
 
     if not isinstance(data, dict) or not set(data) <= {"gather", "quan"}:
@@ -95,9 +95,9 @@ def load_scenario(path, mode: str, tuning: dict) -> dict:
     allowed = GATHER_KEYS if mode == "gather" else QUAN_KEYS
     _check_block_keys(mode, block, allowed, tuning)
     if mode == "gather":
-        _validate_gather(block, tuning)
+        _validate_gather(block, tuning, contract_version=contract_version)
     else:
-        _validate_quan(block, tuning)
+        _validate_quan(block, tuning, contract_version=contract_version)
     return block
 
 
@@ -186,7 +186,7 @@ def _effective_limits(tuning, upgrades=None):
     return int(round(oxy_s * 60)), int(hp_max)
 
 
-def _validate_gather(b, tuning, upgrades=None):
+def _validate_gather(b, tuning, upgrades=None, contract_version: str = "1.1"):
     g = tuning["gather"]
     bounds = g["bounds"]
     for arr in ("nodes", "fish", "monsters"):
@@ -196,8 +196,11 @@ def _validate_gather(b, tuning, upgrades=None):
         raise BadInput("random_fish phải là boolean")
     if "hold" in b:
         h = b["hold"]
-        if not isinstance(h, list) or any(k not in KINDS_V11 for k in h):
-            raise BadInput("hold phải là mảng id nguyên liệu hợp lệ")
+        if is_v12(contract_version):
+            validate_item_instances(h)
+        else:
+            if not isinstance(h, list) or any(k not in KINDS_V11 for k in h):
+                raise BadInput("hold phải là mảng id nguyên liệu hợp lệ")
         if len(h) > g["hold_capacity"]:
             raise BadInput("hold vượt sức chứa")
     p = b.get("player", {})
@@ -283,12 +286,15 @@ def _validate_gather(b, tuning, upgrades=None):
             raise BadInput(f"monsters.{m['id']}.recoil_dir chỉ dùng khi recoil")
 
 
-def _validate_quan(b, tuning):
+def _validate_quan(b, tuning, contract_version: str = "1.1"):
     for arr in ("stoves", "tables", "customers"):
         if arr in b:
             _check_ids(arr, b[arr])
     if "stock" in b:
-        validate_items(b["stock"])
+        if is_v12(contract_version):
+            validate_item_instances(b["stock"])
+        else:
+            validate_items(b["stock"])
     if "reputation" in b:
         rep = b["reputation"]
         q = tuning["quan"]
@@ -307,5 +313,11 @@ def _validate_quan(b, tuning):
     for c in b.get("customers", []):
         if not isinstance(c.get("table_id"), str) or c["table_id"] not in known:
             raise BadInput(f"customers.{c['id']}: table_id phải là bàn có thật")
+        if is_v12(contract_version) and "reserved" in c:
+            res = c["reserved"]
+            if (not isinstance(res, list)
+                    or any(not isinstance(iid, str) or not iid for iid in res)
+                    or len(res) != len(set(res))):
+                raise BadInput(f"customers.{c['id']}.reserved ở v1.2 phải là mảng id cá thể duy nhất")
     if len(table_ids) != len(set(table_ids)):
         raise BadInput("hai khách cùng bàn")
