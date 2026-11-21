@@ -15,7 +15,7 @@ from math import dist, floor, isfinite
 
 from ..errors import BadInput
 from ..ids import id_key, sort_by_id
-from ..inventory import KINDS_V11, validate_items
+from ..inventory import KINDS_V11, is_v12, validate_items
 from .ramp import ramp_velocity
 
 TICK = 60.0
@@ -26,7 +26,7 @@ class QuanSim:
     phase = "quan"
 
     def __init__(self, tuning, scenario, streams, ids, inventory=None,
-                 allowed_dishes=None, money=0, earned=0, reputation=None):
+                 allowed_dishes=None, money=0, earned=0, reputation=None, contract_version="1.1"):
         t = tuning["quan"]
         self.t = t
         self.menu = tuning["menu"]
@@ -42,8 +42,11 @@ class QuanSim:
         self._tgt = None
         self._ramp_left = 0
         # kho: --inventory HOẶC scenario.stock (cả hai -> cli đã báo mã 2)
+        # Bên đọc chọn schema theo contract_version (v1.2: kho cá thể có độ tươi).
         freshness = tuning.get("freshness")
-        self.freshness = freshness is not None
+        self.freshness = is_v12(contract_version)
+        if self.freshness and freshness is None:
+            raise BadInput("contract v1.2 cần tuning.freshness")
         stock = inventory if inventory is not None else scenario.get("stock", [] if self.freshness else {})
         if self.freshness:
             self.initial_freshness = Fraction(str(freshness["initial"]))
@@ -157,10 +160,13 @@ class QuanSim:
             item_id, fresh = item["id"], item["fresh"]
             if not isinstance(item_id, str) or not item_id or item_id in by_id:
                 raise BadInput("ID cá thể kho phải khác rỗng và duy nhất")
-            if (item["kind"] not in KINDS_V11 or type(fresh) not in (int, float)
-                    or not 0 <= fresh <= initial or not isfinite(fresh)):
+            # read_inventory / bàn giao trong day đã đổi fresh sang Fraction chính xác.
+            if (item["kind"] not in KINDS_V11 or isinstance(fresh, bool)
+                    or not isinstance(fresh, (int, float, Fraction))
+                    or (isinstance(fresh, float) and not isfinite(fresh))
+                    or not 0 <= fresh <= initial):
                 raise BadInput(f"kind hoặc fresh không hợp lệ cho {item_id}")
-            by_id[item_id] = dict(item, fresh=Fraction(str(fresh)))
+            by_id[item_id] = dict(item, fresh=fresh if isinstance(fresh, Fraction) else Fraction(str(fresh)))
         return by_id
 
     def _validate_fresh_reservations(self):

@@ -10,7 +10,7 @@ import math
 import os
 from tempfile import TemporaryDirectory
 
-from .ids import IdAllocator
+from .ids import IdAllocator, sort_by_id
 from .inputs import InputPlayer
 from .inventory import is_v12, write_inventory
 from .jsonl import JsonlWriter
@@ -24,7 +24,7 @@ def build_sim(mode, tuning, scenario, seed, inventory, contract_version="1.1"):
     streams, ids = Streams(seed), IdAllocator()
     if mode == "gather":
         return GatherSim(tuning, scenario, streams, ids, contract_version=contract_version)
-    return QuanSim(tuning, scenario, streams, ids, inventory=inventory)
+    return QuanSim(tuning, scenario, streams, ids, inventory=inventory, contract_version=contract_version)
 
 
 def _common(sim, tick, sim_tick, phase_tick, tuning, state, mode_override=None):
@@ -231,12 +231,17 @@ class DaySession:
                     self.tuning, q_sc, self.streams, IdAllocator(),
                     inventory=inv, allowed_dishes=allowed,
                     money=self.money, earned=self.earned, reputation=self.reputation,
+                    contract_version=self.contract_version,
                 )
                 self.phase_tick = 0
                 self.just_changed_phase = True
                 rows.append(self._ev(self.tick, "quan", self.day, "phase_start", {}))
             elif cur_phase == "quan":
-                leftover = list(self.sim.stock) if isinstance(self.sim.stock, list) else dict(self.sim.stock)
+                # v1.2: QuanSim.stock là dict theo id -> chuyển thành mảng cá thể (giữ Fraction, Shop không hao).
+                if self.v12:
+                    leftover = sort_by_id([dict(it) for it in self.sim.stock.values()])
+                else:
+                    leftover = dict(self.sim.stock)
                 self.sim = ShopSim(
                     self.tuning, leftover, self.money, self.earned, self.reputation, self.upgrades,
                     contract_version=self.contract_version,

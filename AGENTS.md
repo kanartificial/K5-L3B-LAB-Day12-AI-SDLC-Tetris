@@ -5,7 +5,8 @@
 ## Lệnh
 - Test toàn bộ: `PYTHONPATH=tests:. python3 -m unittest discover -s tests -v` (Windows/Git Bash: `PYTHONPATH="tests;."`)
 - Smoke Phase 2 (QA): `python3 tools/smoke_p2.py all` — chạy smoke tích hợp 2 tiến trình, `--mode day --days 1|5` và regression; ghi bằng chứng vào `docs/proof/phase-2/`.
-- Kiểm tất định (QA): `python3 tools/check_determinism.py --proof docs/proof/phase-2` — chạy 2 lần cùng seed, so byte JSONL + kho, kiểm sắp id / làm tròn; chạy trước khi gắn tag.
+- Smoke Phase 3 (QA, Contract v1.2): `python3 tools/smoke_p3.py all` — ngưỡng ươn 30, bàn giao kho cá thể 2 tiến trình, kho đếm → mã 2, `day` có hàng (→ Shop → Ngày 2), regression; ghi vào `docs/proof/phase-3/`.
+- Kiểm tất định (QA): `python3 tools/check_determinism.py --proof docs/proof/phase-3` — chạy 2 lần cùng seed, so byte JSONL + kho, kiểm sắp id / làm tròn; chạy trước khi gắn tag.
 - Headless: `python3 -m chonoi.headless --mode gather|quan|day [--days 1..5] --seed 1 --ticks 600 --out out.jsonl`
 - Chơi thử trên trình duyệt: `python3 -m chonoi.live --mode gather|quan|day` (WASD/mũi tên, `E`, `Space`, `Esc`/`P`, `R`)
 

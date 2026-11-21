@@ -12,7 +12,7 @@ Bao phủ:
 import json
 import unittest
 
-from helpers import Workdir, events, frames, read_jsonl, run_headless, snapshots, write_json
+from helpers import Workdir, counts, events, frames, inst, kinds_of, read_jsonl, run_headless, snapshots, write_json
 
 
 def tuning_gather():
@@ -143,7 +143,7 @@ class GatherSlice1OxygenAndFaint(unittest.TestCase):
                         "zero_oxy_ticks": 59,
                         "hp": 1,
                     },
-                    "hold": ["ca_loc", "bong_sung", "ca_linh"],
+                    "hold": inst("ca_loc", "bong_sung", "ca_linh"),
                     "nodes": [],
                     "fish": [],
                     "random_fish": False,
@@ -164,17 +164,17 @@ class GatherSlice1OxygenAndFaint(unittest.TestCase):
             evs = [r for r in rows if r["type"] == "event"]
             self.assertEqual([e["name"] for e in evs], ["choke", "faint", "gather_end"])
             self.assertEqual(evs[0]["data"], {"hp": 0})
-            self.assertEqual(evs[1]["data"], {
-                "cause": "choke",
-                "lost": ["ca_linh", "bong_sung", "ca_loc"],
-                "hp": 0,
-            })
-            self.assertEqual(evs[2]["data"], {"reason": "fainted", "inventory": {"items": {}}})
+            # v1.2: lost là mảng cá thể theo thứ tự bỏ LIFO
+            self.assertEqual(evs[1]["data"]["cause"], "choke")
+            self.assertEqual(evs[1]["data"]["hp"], 0)
+            self.assertEqual([it["id"] for it in evs[1]["data"]["lost"]], ["I3", "I2", "I1"])
+            self.assertEqual(kinds_of(evs[1]["data"]["lost"]), ["ca_linh", "bong_sung", "ca_loc"])
+            self.assertEqual(evs[2]["data"], {"reason": "fainted", "inventory": {"items": []}})
             self.assertEqual(rows[-1]["reason"], "fainted")
             self.assertEqual(rows[-1]["state"], "finished")
             self.assertEqual(snapshots(rows)[-1]["hold"], [])
             with open(inv, encoding="utf-8") as f:
-                self.assertEqual(json.load(f), {"items": {}})
+                self.assertEqual(json.load(f), {"items": []})
 
 
 class GatherSlice2HarvestCatchAndDock(unittest.TestCase):
@@ -230,7 +230,7 @@ class GatherSlice2HarvestCatchAndDock(unittest.TestCase):
             sc = write_json(w.path("sc.json"), {
                 "gather": {
                     "player": {"pos": [20, 0]},
-                    "hold": ["ca_loc"] * g["hold_capacity"],
+                    "hold": inst(*["ca_loc"] * g["hold_capacity"]),
                     "nodes": [{"id": "N1", "kind": "bong_sung", "pos": [21, 0]}],
                     "fish": [],
                     "random_fish": False,
@@ -321,7 +321,8 @@ class GatherSlice2HarvestCatchAndDock(unittest.TestCase):
             self.assertEqual(caught2[1]["tick"], 1 + cd)
             self.assertEqual(caught2[1]["data"], {"fish_id": "F10", "kind": "ca_loc", "yield": g["fish_yield"]["ca_loc"]})
             self.assertEqual(snapshots(rows2)[-1]["fish"], [])
-            self.assertEqual(snapshots(rows2)[-1]["hold"], ["ca_linh", "ca_linh", "ca_linh", "ca_loc"])
+            self.assertEqual(kinds_of(snapshots(rows2)[-1]["hold"]), ["ca_linh", "ca_linh", "ca_linh", "ca_loc"])
+            self.assertEqual([it["id"] for it in snapshots(rows2)[-1]["hold"]], ["I1", "I2", "I3", "I4"])
 
     def test_catch_hold_full_does_not_try_other_fish_and_keeps_cooldown(self):
         g = tuning_gather()
@@ -331,7 +332,7 @@ class GatherSlice2HarvestCatchAndDock(unittest.TestCase):
             sc = write_json(w.path("sc.json"), {
                 "gather": {
                     "player": {"pos": [30, 10]},
-                    "hold": ["bong_sung"] * (g["hold_capacity"] - 2),
+                    "hold": inst(*["bong_sung"] * (g["hold_capacity"] - 2)),
                     "nodes": [],
                     "fish": [
                         {"id": "F1", "kind": "ca_linh", "pos": [30.5, 10]},
@@ -404,7 +405,7 @@ class GatherSlice2HarvestCatchAndDock(unittest.TestCase):
             sc1 = write_json(w.path("sc1.json"), {
                 "gather": {
                     "player": {"pos": [5, 0]},
-                    "hold": ["ca_loc"],
+                    "hold": inst("ca_loc"),
                     "nodes": [{"id": "N1", "kind": "bong_sung", "pos": [5, 0]}],
                     "fish": [],
                     "random_fish": False,
@@ -424,13 +425,13 @@ class GatherSlice2HarvestCatchAndDock(unittest.TestCase):
             self.assertEqual(events(rows1, "gather_end")[0]["data"]["reason"], "docked")
             self.assertEqual(rows1[-1]["reason"], "docked")
             with open(inv1, encoding="utf-8") as f:
-                self.assertEqual(json.load(f), {"items": {"ca_loc": 1}})
+                self.assertEqual(counts(json.load(f)), {"ca_loc": 1})
 
             # 2) Ngoài bến, bắt cá hợp lệ ở bước cuối ca -> vào kho trước khi gather_end(time)
             sc2 = write_json(w.path("sc2.json"), {
                 "gather": {
                     "player": {"pos": [30, 10]},
-                    "hold": ["bong_dien_dien"],
+                    "hold": inst("bong_dien_dien"),
                     "nodes": [],
                     "fish": [{"id": "F1", "kind": "ca_linh", "pos": [31, 10]}],
                     "random_fish": False,
@@ -449,9 +450,11 @@ class GatherSlice2HarvestCatchAndDock(unittest.TestCase):
             self.assertEqual(len(events(rows2, "fish_caught")), 1)
             end_ev = events(rows2, "gather_end")[0]["data"]
             self.assertEqual(end_ev["reason"], "time")
-            self.assertEqual(end_ev["inventory"], {"items": {"bong_dien_dien": 1, "ca_linh": 3}})
+            self.assertEqual(counts(end_ev["inventory"]), {"bong_dien_dien": 1, "ca_linh": 3})
+            # v1.2: cá mới bắt cấp tiếp id sau hàng có sẵn (I1) theo thứ tự vào giỏ
+            self.assertEqual([it["id"] for it in end_ev["inventory"]["items"]], ["I1", "I2", "I3", "I4"])
             with open(inv2, encoding="utf-8") as f:
-                self.assertEqual(json.load(f), {"items": {"bong_dien_dien": 1, "ca_linh": 3}})
+                self.assertEqual(counts(json.load(f)), {"bong_dien_dien": 1, "ca_linh": 3})
 
             # 3) Ngoài bến, hái nút hợp lệ ở bước cuối ca -> vào kho trước khi gather_end(time)
             sc3 = write_json(w.path("sc3.json"), {
@@ -476,9 +479,9 @@ class GatherSlice2HarvestCatchAndDock(unittest.TestCase):
             self.assertEqual(len(events(rows3, "gather")), 1)
             end_ev3 = events(rows3, "gather_end")[0]["data"]
             self.assertEqual(end_ev3["reason"], "time")
-            self.assertEqual(end_ev3["inventory"], {"items": {"bong_dien_dien": 1}})
+            self.assertEqual(end_ev3["inventory"], {"items": [{"id": "I1", "kind": "bong_dien_dien", "fresh": 100}]})
             with open(inv3, encoding="utf-8") as f:
-                self.assertEqual(json.load(f), {"items": {"bong_dien_dien": 1}})
+                self.assertEqual(json.load(f), {"items": [{"id": "I1", "kind": "bong_dien_dien", "fresh": 100}]})
 
 
 if __name__ == "__main__":

@@ -2,9 +2,11 @@
 
 import json
 import unittest
+from fractions import Fraction
+from math import floor
 from pathlib import Path
 
-from helpers import ROOT, Workdir, events, frames, read_jsonl, run_headless, snapshots, write_json
+from helpers import ROOT, Workdir, counts, events, frames, ids_of, inst, read_jsonl, run_headless, snapshots, write_json
 
 
 TUNING = json.loads((Path(ROOT) / "game.contract.json").read_text(encoding="utf-8"))["tuning"]
@@ -36,7 +38,7 @@ class QuanPhaseOne(unittest.TestCase):
 
     def test_arrival_reserves_recipe_without_consuming_stock(self):
         first = QUAN["first_customer_tick"]
-        stock = dict(DISH["recipe"])
+        stock = inst("ca_loc")  # v1.2: kho cá thể
         log, state, _ = self.simulate(first + 1, {"stock": stock})
         self.assertEqual(state[first - 1]["customers"], [])
         self.assertEqual([(e["tick"], e["name"], e["data"]) for e in log], [
@@ -45,8 +47,9 @@ class QuanPhaseOne(unittest.TestCase):
         customer, = state[first]["customers"]
         self.assertEqual(customer["order_tick"], first)
         self.assertEqual(customer["order_status"], "reserved")
-        self.assertEqual(customer["reserved"], stock)
-        self.assertEqual(state[first]["stock"], stock)
+        # v1.2: giữ theo id, kho vẫn còn nguyên cá thể (chỉ hao tươi)
+        self.assertEqual(customer["reserved"], ["I1"])
+        self.assertEqual(ids_of(state[first]["stock"]), ["I1"])
         patience = round(QUAN["patience_s"] * TICK_HZ)
         self.assertEqual(customer["patience_ticks_left"], patience)
         self.assertEqual(state[first + 1]["customers"][0]["patience_ticks_left"], patience - 1)
@@ -68,7 +71,7 @@ class QuanPhaseOne(unittest.TestCase):
         serve = cooked + travel + QUAN["ramp_max_ticks"] + 1
         paid = serve + round(QUAN["eat_s"] * TICK_HZ)
         log, state, end = self.simulate(
-            paid, {"stock": DISH["recipe"], "player": {"pos": [2, 8]},
+            paid, {"stock": inst("ca_loc"), "player": {"pos": [2, 8]},
                    "tables": [{"id": "T1", "pos": [3, 8]}]},
             {"tick": first, "interact": True}, {"tick": first + 1, "interact": False},
             {"tick": cooked - 1, "interact": True},
@@ -82,14 +85,17 @@ class QuanPhaseOne(unittest.TestCase):
             (first, "customer_arrived"), (first + 1, "cook_started"),
             (cooked, "dish_ready"), (cooked, "dish_picked"), (serve, "served"), (paid, "paid"),
         ])
-        self.assertEqual(log[1]["data"]["items"], ["ca_loc"])
-        self.assertEqual(state[first + 1]["stock"], {})
+        self.assertEqual([(it["id"], it["kind"]) for it in log[1]["data"]["items"]], [("I1", "ca_loc")])
+        self.assertEqual(state[first + 1]["stock"], [])
         self.assertEqual(state[cooked]["hand"]["order_id"], "C1")
         self.assertEqual(state[serve]["customers"][0]["eat_ticks_left"], paid - serve)
         self.assertIsNone(state[serve]["hand"])
         self.assertIsNone(state[paid]["tables"][0]["customer_id"])
-        price = DISH["price"]
-        tip = int(price * QUAN["tip_rate"])
+        # v1.2 thay giá niêm yết bằng giá theo tươi: hàng hao 0.25/s trong first+1 tick trước khi nấu
+        fresh = 100 - Fraction(first + 1, 240)
+        price = floor(DISH["price"] * fresh / 100)
+        self.assertEqual(log[1]["data"]["base_price"], price)
+        tip = floor(price * Fraction(str(QUAN["tip_rate"])))
         self.assertEqual(log[-1]["data"]["reason"], "finished_eating")
         self.assertEqual(log[-1]["data"]["tip"], tip)
         self.assertEqual(end["money"], price + tip)
@@ -128,7 +134,7 @@ class QuanPhaseOne(unittest.TestCase):
                 self.assertEqual(log[0]["name"], "customer_left")
                 self.assertEqual(log[0]["data"]["reason"], reason)
                 self.assertAlmostEqual(log[0]["data"]["reputation"], QUAN["reputation_initial"] + delta)
-                self.assertEqual(state[1]["stock"], {})
+                self.assertEqual(state[1]["stock"], [])
                 self.assertEqual(state[1]["stoves"][0]["state"], "idle")
                 self.assertIsNone(state[1]["stoves"][0]["dish"])
                 self.assertIsNone(state[1]["tables"][0]["customer_id"])

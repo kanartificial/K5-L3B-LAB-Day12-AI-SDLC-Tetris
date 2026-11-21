@@ -3,7 +3,7 @@
 import json
 import unittest
 
-from helpers import Workdir, events, frames, read_jsonl, run_headless, snapshots, write_json
+from helpers import Workdir, events, frames, inst, kinds_of, read_jsonl, run_headless, snapshots, write_json
 
 
 class GatherP2EdgeCases(unittest.TestCase):
@@ -67,7 +67,7 @@ class GatherP2EdgeCases(unittest.TestCase):
                         "invuln_ticks": 50,
                         "hp": 3,
                     },
-                    "hold": ["ca_loc", "bong_sung"],
+                    "hold": inst("ca_loc", "bong_sung"),
                     "random_fish": False,
                     "monsters": [],
                 }
@@ -81,7 +81,7 @@ class GatherP2EdgeCases(unittest.TestCase):
             chokes = events(rows, "choke")
             self.assertEqual(len(chokes), 1)
             self.assertEqual(chokes[0]["data"], {"hp": 2})
-            self.assertEqual(snapshots(rows)[-1]["hold"], ["ca_loc", "bong_sung"])
+            self.assertEqual(kinds_of(snapshots(rows)[-1]["hold"]), ["ca_loc", "bong_sung"])
 
     def test_monster_patrol_chase_exit_and_recoil_duration(self):
         """Cá Sấu chuyển patrol -> chase (d>=10, <=10m), thoát chase khi lên d<10, và recoil đúng 60 tick."""

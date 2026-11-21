@@ -3,7 +3,7 @@
 Hộp đen: chỉ chạy `headless_cmd` trong game.contract.json, nên dùng được với mọi ngôn ngữ.
 Mỗi kịch bản chạy 2 lần cùng seed/đầu vào → so JSONL và file kho từng byte, rồi kiểm:
   - đúng 1 dòng `end` và là dòng cuối; snapshot đầu ở tick 0;
-  - mảng thực thể (nodes, fish, stoves, tables, customers) sắp theo id (F2 trước F10);
+  - mảng thực thể (nodes, fish, stoves, tables, customers, stock v1.2) sắp theo id (F2 trước F10);
   - số thực có ≤ 3 chữ số thập phân, không có -0.0;
   - đổi seed vẫn chạy được (exit 0).
 
@@ -22,7 +22,7 @@ import sys
 import tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ENTITY_KEYS = ("nodes", "fish", "stoves", "tables", "customers")
+ENTITY_KEYS = ("nodes", "fish", "stoves", "tables", "customers", "stock")  # hold giữ thứ tự vào giỏ (LIFO)
 _TAIL = re.compile(r"^(.*?)(\d+)$")
 
 
@@ -37,6 +37,11 @@ def headless_cmd():
     if os.name == "nt" and command == ["python3", "-m", "chonoi.headless"]:
         command[0] = sys.executable
     return command
+
+
+def v12():
+    with open(os.path.join(ROOT, "game.contract.json"), encoding="utf-8") as f:
+        return json.load(f).get("contract_version") == "1.2"
 
 
 def write_json(path, obj):
@@ -54,10 +59,23 @@ def scenarios(tmp):
     qin = write_json(os.path.join(tmp, "q_in.json"), {"frames": [
         {"tick": 0, "move": [1, 0]}, {"tick": 30, "interact": True}, {"tick": 31, "interact": False},
         {"tick": 60, "move": [0, 1]}, {"tick": 120, "move": [0, 0], "interact": True}]})
-    inv = write_json(os.path.join(tmp, "inv_in.json"), {"items": {"bong_sung": 2, "ca_loc": 1, "ca_linh": 3}})
-    dock = write_json(os.path.join(tmp, "dock_sc.json"), {"gather": {"hold": ["ca_loc", "bong_sung", "bong_sung"]}})
+    kinds_inv = ["bong_sung", "bong_sung", "ca_loc", "ca_linh", "ca_linh", "ca_linh"]
+    kinds_dock = ["ca_loc", "bong_sung", "bong_sung"]
+    if v12():
+        # Contract v1.2: kho cá thể; trộn độ tươi để phủ nhánh ươn/giữ lại/giá theo tươi.
+        inv_obj = {"items": [{"id": f"I{i + 1}", "kind": k, "fresh": f}
+                             for i, (k, f) in enumerate(zip(kinds_inv, (100, 30, 75.5, 30.25, 100, 60)))]}
+        hold = [{"id": f"I{i + 1}", "kind": k, "fresh": 100} for i, k in enumerate(kinds_dock)]
+    else:
+        inv_obj = {"items": {"bong_sung": 2, "ca_loc": 1, "ca_linh": 3}}
+        hold = kinds_dock
+    inv = write_json(os.path.join(tmp, "inv_in.json"), inv_obj)
+    dock = write_json(os.path.join(tmp, "dock_sc.json"), {"gather": {"hold": hold}})
     dock_in = write_json(os.path.join(tmp, "dock_in.json"), {"frames": [{"tick": 0, "interact": True}]})
-    return [
+    extra_cases = []
+    if v12():
+        extra_cases.append(("day_hold_handoff", "day", ["--scenario", dock, "--inputs", dock_in, "--snapshot-every", "600"], False))
+    return extra_cases + [
         ("gather_idle", "gather", [], False),
         ("gather_inputs", "gather", ["--inputs", gin, "--snapshot-every", "10"], False),
         ("gather_dock_inventory", "gather", ["--scenario", dock, "--inputs", dock_in], True),
@@ -100,8 +118,11 @@ def check_format(raw):
     rows = [json.loads(line) for line in raw.decode("utf-8").splitlines() if line.strip()]
     if not rows:
         return ["JSONL rỗng"]
-    if rows[0].get("type") != "snapshot" or rows[0].get("tick") != 0:
-        errs.append("dòng đầu không phải snapshot tick 0")
+    # `day` (từ P2) phát day_start/day_plan/phase_start ở tick 0 trước snapshot đầu -> chỉ cho phép event tick 0 đứng trước.
+    first = next((i for i, r in enumerate(rows) if r.get("type") == "snapshot"), None)
+    if first is None or rows[first].get("tick") != 0 or any(
+            r.get("type") != "event" or r.get("tick") != 0 for r in rows[:first]):
+        errs.append("snapshot đầu không ở tick 0 (trước nó chỉ được có event tick 0)")
     ends = [i for i, r in enumerate(rows) if r.get("type") == "end"]
     if ends != [len(rows) - 1]:
         errs.append(f"dòng `end` phải có đúng 1 và ở cuối (thấy ở {ends})")
@@ -134,7 +155,7 @@ def main():
     lines, failed = [], 0
     with tempfile.TemporaryDirectory() as tmp:
         for name, mode, extra, writes_inv in scenarios(tmp):
-            ticks = 1 if name == "gather_dock_inventory" else a.ticks
+            ticks = {"gather_dock_inventory": 1, "day_hold_handoff": 22200}.get(name, a.ticks)
             for seed in seeds:
                 outs, invs, problems = [], [], []
                 for i in (1, 2):

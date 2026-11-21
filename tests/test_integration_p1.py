@@ -1,9 +1,11 @@
 """Test tích hợp 2 tiến trình Phase 1 (`gather` -> file kho -> `quan`), kiểu hộp đen."""
 
 import json
+import math
 import unittest
+from fractions import Fraction
 
-from helpers import Workdir, events, frames, read_jsonl, run_headless, snapshots, write_json
+from helpers import Workdir, events, inst, frames, read_jsonl, run_headless, snapshots, write_json
 
 
 def load_tuning():
@@ -40,7 +42,8 @@ class TwoProcessIntegrationP1(unittest.TestCase):
             self.assertEqual(code, 0, err)
             with open(inv, encoding="utf-8") as f:
                 saved = json.load(f)
-            self.assertEqual(saved, {"items": {"ca_loc": 1}})
+            # v1.2: cá thể mới bắt fresh 100, chưa hao ở bước bắt
+            self.assertEqual(saved, {"items": [{"id": "I1", "kind": "ca_loc", "fresh": 100}]})
 
             # 2) Buổi tối: đọc file kho vừa xuất, khách đến gọi ca_loc_nuong_trui, nấu -> bưng -> phục vụ -> thanh toán
             first = q["first_customer_tick"]
@@ -72,7 +75,7 @@ class TwoProcessIntegrationP1(unittest.TestCase):
             self.assertEqual(code, 0, err)
             q_rows = read_jsonl(w.path("quan.jsonl"))
             q_snaps = snapshots(q_rows)
-            self.assertEqual(q_snaps[0]["stock"], {"ca_loc": 1})
+            self.assertEqual(q_snaps[0]["stock"], [{"id": "I1", "kind": "ca_loc", "fresh": 100}])
             self.assertIn("vel", q_snaps[0]["player"])
 
             # v1.1 có 4 bàn (T1–T4) nên tick 1020 khi hết kho sẽ phát no_dish; lọc riêng vòng đời đơn C1
@@ -81,8 +84,10 @@ class TwoProcessIntegrationP1(unittest.TestCase):
                 "customer_arrived", "cook_started", "dish_ready", "dish_picked", "served", "paid",
             ])
             end = q_rows[-1]
-            expected_tip = int(dish["price"] * q["tip_rate"])
-            expected_earned = dish["price"] + expected_tip
+            # v1.2: giá chốt theo tươi lúc nấu (tick first+1, hao 1/240 mỗi tick ở quán)
+            price = math.floor(dish["price"] * (100 - Fraction(first + 1, 240)) / 100)
+            expected_tip = math.floor(price * Fraction(str(q["tip_rate"])))
+            expected_earned = price + expected_tip
             self.assertEqual(end["money"], expected_earned)
             self.assertEqual(end["earned"], expected_earned)
             self.assertAlmostEqual(end["reputation"], q["reputation_initial"] + q["tip_reputation"])
@@ -95,7 +100,7 @@ class TwoProcessIntegrationP1(unittest.TestCase):
             g_sc = write_json(w.path("g_sc.json"), {
                 "gather": {
                     "player": {"pos": [20, 10], "oxygen_ticks": 0, "zero_oxy_ticks": 59, "hp": 1},
-                    "hold": ["ca_loc", "bong_sung"],
+                    "hold": inst("ca_loc", "bong_sung"),
                     "nodes": [],
                     "fish": [],
                     "random_fish": False,
@@ -108,7 +113,7 @@ class TwoProcessIntegrationP1(unittest.TestCase):
             )
             self.assertEqual(code, 0, err)
             with open(inv, encoding="utf-8") as f:
-                self.assertEqual(json.load(f), {"items": {}})
+                self.assertEqual(json.load(f), {"items": []})
 
             code, err = run_headless(
                 "--mode", "quan", "--seed", "7", "--ticks", str(first),
@@ -116,7 +121,7 @@ class TwoProcessIntegrationP1(unittest.TestCase):
             )
             self.assertEqual(code, 0, err)
             q_rows = read_jsonl(w.path("q.jsonl"))
-            self.assertEqual(snapshots(q_rows)[0]["stock"], {})
+            self.assertEqual(snapshots(q_rows)[0]["stock"], [])
             no_dishes = events(q_rows, "no_dish")
             self.assertEqual(len(no_dishes), 1)
             self.assertEqual(no_dishes[0]["tick"], first)
