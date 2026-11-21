@@ -33,15 +33,18 @@ TICK_S = 1.0 / 60.0
 MAX_BODY = 4096
 RECENT_EVENTS = 40
 
+# === Thêm vào đầu file (nếu chưa có) ===
+from pathlib import Path
+
+# Trong class LiveGame, sửa __init__ và thêm method switch_mode:
 
 class LiveGame:
-    """Một lượt chơi + luồng nền bước 60 tick/s. Mọi truy cập trạng thái đi qua khóa."""
-
     def __init__(self, mode, tuning, scenario, seed, inventory=None, inventory_out=None):
         self._args = (mode, tuning, scenario, seed, inventory)
         self.mode = mode
         self.tuning = tuning
         self.inventory_out = inventory_out
+        self.seed = seed
         self._lock = threading.Lock()
         self._stop = threading.Event()
         self._thread = None
@@ -53,6 +56,51 @@ class LiveGame:
         self.events = []
         self._saved = False
         self.error = None
+
+    # ... giữ nguyên start / stop / _loop / _tick_once / state_json / set_input / restart ...
+
+    def switch_mode(self, new_mode: str, inventory_path: str | None = None):
+        """Chuyển gather <-> quan, giữ nguyên server HTTP."""
+        if new_mode not in ("gather", "quan"):
+            raise ValueError("mode phải là gather hoặc quan")
+
+        with self._lock:
+            # Nếu đang gather và có inventory_out → ghi kho trước khi chuyển
+            if self.mode == "gather" and self.session.done and self.inventory_out:
+                try:
+                    self.session.write_inventory_if_done(self.inventory_out)
+                except OSError as e:
+                    sys.stderr.write(f"lỗi ghi kho khi switch: {e}\n")
+
+            # Dừng luồng sim cũ
+            self._stop.set()
+            if self._thread and self._thread.is_alive():
+                self._thread.join(timeout=1.5)
+
+            # Tạo lại game mới
+            from .scenario import load_scenario
+            from .inventory import read_inventory
+
+            scenario = load_scenario(None, new_mode, self.tuning)
+            inv = None
+            inv_out = None
+
+            if new_mode == "quan":
+                path = inventory_path or self.inventory_out or "campaign_inventory.json"
+                if Path(path).exists():
+                    inv = read_inventory(path)
+                else:
+                    # Kho trống nếu chưa có file
+                    inv = {"items": {}}
+            else:  # chuyển về gather
+                inv_out = inventory_path or "campaign_inventory.json"
+
+            self.mode = new_mode
+            self._args = (new_mode, self.tuning, scenario, self.seed, inv)
+            self.inventory_out = inv_out
+            self._stop = threading.Event()
+            self._reset()
+            self.start()  # chạy lại luồng sim
 
     # --- luồng nền ----------------------------------------------------------------
     def start(self):
@@ -175,6 +223,13 @@ class _Handler(BaseHTTPRequestHandler):
                 self.game.set_input(body)
             elif path == "/restart":
                 self.game.restart()
+            elif path == "/switch":
+                body = json.loads(raw.decode("utf-8") or "{}")
+                new_mode = body.get("mode")
+                inv_path = body.get("inventory")  # optional
+                if new_mode not in ("gather", "quan"):
+                    raise ValueError("mode phải là gather hoặc quan")
+                self.game.switch_mode(new_mode, inv_path)
             else:
                 self._send(404, b'{"error":"khong co"}')
                 return
