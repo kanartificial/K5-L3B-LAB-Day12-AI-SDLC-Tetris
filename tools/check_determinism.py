@@ -33,7 +33,10 @@ def id_key(ident):
 
 def headless_cmd():
     with open(os.path.join(ROOT, "game.contract.json"), encoding="utf-8") as f:
-        return shlex.split(json.load(f)["headless_cmd"])
+        command = shlex.split(json.load(f)["headless_cmd"])
+    if os.name == "nt" and command == ["python3", "-m", "chonoi.headless"]:
+        command[0] = sys.executable
+    return command
 
 
 def write_json(path, obj):

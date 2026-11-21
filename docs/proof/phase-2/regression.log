@@ -1,5 +1,5 @@
-# commit 957e58c (+ thay đổi chưa commit)
-$ PYTHONPATH=tests:. python3 -m unittest discover -s tests -v
+# commit 32d1921 (+ thay đổi chưa commit)
+$ PYTHONPATH=tests;. python3 -m unittest discover -s tests -v
 test_p2_01_cli_day_scenario_rejections (test_contract_p2.DayCli.test_p2_01_cli_day_scenario_rejections) ... ok
 test_p2_01_cli_days_flag_domain (test_contract_p2.DayCli.test_p2_01_cli_days_flag_domain) ... ok
 test_p2_01_cli_ticket_example_scenario_accepted (test_contract_p2.DayCli.test_p2_01_cli_ticket_example_scenario_accepted) ... ok
@@ -17,6 +17,8 @@ test_p2_03_monster_faint_empties_hold (test_contract_p2.MonsterP2.test_p2_03_mon
 test_p2_05_pause_pause_freezes_gameplay (test_contract_p2.PauseP2.test_p2_05_pause_pause_freezes_gameplay) ... ok
 test_p2_05_pause_paused_snapshot_state (test_contract_p2.PauseP2.test_p2_05_pause_paused_snapshot_state) ... ok
 test_p2_04_customers_every_900_ticks_fill_lowest_table (test_contract_p2.QuanP2.test_p2_04_customers_every_900_ticks_fill_lowest_table) ... ok
+test_p2_04_day_orders_checked_against_plan_and_handed_off_stock (test_contract_p2.QuanP2.test_p2_04_day_orders_checked_against_plan_and_handed_off_stock) ... ok
+test_p2_04_invalid_orders_rejected_before_output (test_contract_p2.QuanP2.test_p2_04_invalid_orders_rejected_before_output) ... ok
 test_p2_04_new_kinds_accepted_in_inventory (test_contract_p2.QuanP2.test_p2_04_new_kinds_accepted_in_inventory) ... ok
 test_p2_04_standalone_quan_uses_new_dishes (test_contract_p2.QuanP2.test_p2_04_standalone_quan_uses_new_dishes) ... ok
 test_p2_04_tick0_layout (test_contract_p2.QuanP2.test_p2_04_tick0_layout) ... ok
@@ -103,6 +105,6 @@ test_too_few_members (test_team_check.TeamCheck.test_too_few_members) ... ok
 test_wrong_size_duplicate_and_outsider (test_team_check.TeamCheck.test_wrong_size_duplicate_and_outsider) ... ok
 
 ----------------------------------------------------------------------
-Ran 86 tests in 22.735s
+Ran 88 tests in 21.023s
 
 OK

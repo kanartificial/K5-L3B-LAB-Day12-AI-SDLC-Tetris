@@ -1,13 +1,13 @@
 # Smoke mode day (phút 35)
 
-- Commit: `957e58c (+ thay đổi chưa commit)` · contract_version `1.1`
-- Thời điểm: 2026-11-21 11:09:08
+- Commit: `32d1921 (+ thay đổi chưa commit)` · contract_version `1.1`
+- Thời điểm: 2026-11-21 11:25:30
 
 | Kiểm | Kết quả | Chi tiết |
 |---|---|---|
 | --days 1 exit 0 | ĐẠT |  |
 | --days 1: end reason days_complete, days_completed = 1 | ĐẠT | end = {"type": "end", "ticks": 22200, "sim_tick": 22200, "mode": "day", "state": "finished", "reason": "days_complete", "days_completed": 1, "money": 0, "earned": 0, "reputation": 3.0, "score": 300} |
-| 1 Ngày ≤ 20 s | ĐẠT | 1.3 s |
+| 1 Ngày ≤ 20 s | ĐẠT | 0.6 s |
 | 1 Ngày ≤ 22.200 tick | ĐẠT | sim_tick = 22200 |
 | --days 1: công bố day_plan Ngày 1..1 | ĐẠT | D1: {'ca_loc_nuong_trui': 3, 'goi_bong_sung': 3} |
 | --days 1: pha gather → quan → shop lặp lại | ĐẠT | gather → quan → shop |

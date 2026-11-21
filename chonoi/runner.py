@@ -7,6 +7,8 @@ Mỗi tick tối đa một snapshot.
 
 import copy
 import math
+import os
+from tempfile import TemporaryDirectory
 
 from .ids import IdAllocator
 from .inputs import InputPlayer
@@ -263,8 +265,19 @@ def run(mode, tuning, scenario, seed, frames, ticks, out_path, snapshot_every,
         inventory=None, inventory_out=None, days=1):
     if mode == "day":
         sess = DaySession(tuning, scenario, seed, days=days)
+        # Lỗi fixture Quán có thể chỉ xuất hiện khi đã biết kho cuối buổi sáng.
+        with TemporaryDirectory(dir=os.path.dirname(os.path.abspath(out_path))) as tmp:
+            draft = os.path.join(tmp, "day.jsonl")
+            _write_session(sess, frames, ticks, draft, snapshot_every)
+            os.replace(draft, out_path)
     else:
         sess = Session(mode, tuning, scenario, seed, inventory)
+        _write_session(sess, frames, ticks, out_path, snapshot_every)
+    sess.write_inventory_if_done(inventory_out)
+    return sess.sim
+
+
+def _write_session(sess, frames, ticks, out_path, snapshot_every):
     player = InputPlayer(frames)
     w = JsonlWriter(out_path)
     try:
@@ -286,5 +299,3 @@ def run(mode, tuning, scenario, seed, frames, ticks, out_path, snapshot_every,
         w.write(sess.end_row())
     finally:
         w.close()
-    sess.write_inventory_if_done(inventory_out)
-    return sess.sim

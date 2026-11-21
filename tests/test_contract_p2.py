@@ -11,6 +11,7 @@ import json
 import math
 import time
 import unittest
+from pathlib import Path
 
 from helpers import ROOT, Workdir, events, frames, read_jsonl, run_headless, snapshots, write_json
 
@@ -249,6 +250,47 @@ class QuanP2(unittest.TestCase):
         with Workdir() as w:
             inv = write_json(w.path("inv.json"), {"items": {"ca_keo": 1, "keo_neo": 1}})
             run_ok(self, "--mode", "quan", "--seed", "1", "--ticks", "0", "--inventory", inv, "--out", w.path("q.jsonl"))
+
+    def test_p2_04_invalid_orders_rejected_before_output(self):
+        customer = {"id": "C1", "table_id": "T1", "dish_id": "ca_loc_nuong_trui",
+                    "state": "waiting", "order_status": "reserved", "order_tick": 0}
+        for invalid in (
+            customer,
+            dict(customer, order_status="assigned"),
+            dict(customer, state="eating", order_status="served", eat_ticks_left=1),
+        ):
+            with self.subTest(customer=invalid), Workdir() as w:
+                scenario = write_json(w.path("q.json"), {"quan": {"customers": [invalid]}})
+                out = Path(w.path("q.jsonl"))
+                code, err = run_headless("--mode", "quan", "--seed", "1", "--ticks", "0",
+                                         "--scenario", scenario, "--out", str(out))
+                self.assertEqual(code, 2, err)
+                self.assertFalse(out.exists())
+
+    def test_p2_04_day_orders_checked_against_plan_and_handed_off_stock(self):
+        customer = {"id": "C1", "table_id": "T1", "state": "waiting",
+                    "order_status": "reserved", "order_tick": 0}
+        cases = (
+            ("ca_loc_nuong_trui", [], 2),
+            ("ca_keo_nuong", ["ca_keo", "ca_keo"], 2),
+            ("ca_loc_nuong_trui", ["ca_loc"], 0),
+        )
+        for dish_id, hold, expected in cases:
+            with self.subTest(dish=dish_id, hold=hold), Workdir() as w:
+                scenario = {"gather": {"hold": hold, "random_fish": False},
+                            "quan": {"customers": [dict(customer, dish_id=dish_id)]}}
+                out = Path(w.path("d.jsonl"))
+                out.write_text("previous output", encoding="utf-8")
+                code, err, rows = day_run(w, out.name, 1, scenario=scenario,
+                                          inputs=frames({"tick": 0, "interact": True}))
+                self.assertEqual(code, expected, err)
+                if expected == 2:
+                    self.assertEqual(out.read_text(encoding="utf-8"), "previous output")
+                else:
+                    snap = snapshots(rows)[-1]
+                    self.assertEqual(snap["phase"], "quan")
+                    self.assertEqual(snap["stock"], {"ca_loc": 1})
+                    self.assertEqual(snap["customers"][0]["reserved"], {"ca_loc": 1})
 
 
 # ---------------------------------------------------------------- AC-P2-01 CLI & scenario mode day (khung v1.1)

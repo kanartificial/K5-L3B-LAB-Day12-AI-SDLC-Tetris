@@ -11,7 +11,9 @@ Nhóm viết tiếp (PRD-0 mục F, Quán):
 
 from math import dist, floor
 
+from ..errors import BadInput
 from ..ids import id_key, sort_by_id
+from ..inventory import validate_items
 from .ramp import ramp_velocity
 
 TICK = 60.0
@@ -51,9 +53,13 @@ class QuanSim:
         # TODO(nhóm): khách dựng sẵn từ scenario (customers[]) và suy ra giữ chỗ (reserved).
         self.customers = []
         for customer in scenario.get("customers", []):
-            recipe = self.menu.get(customer.get("dish_id"), {}).get("recipe", {})
+            dish_id = customer.get("dish_id")
+            if not isinstance(dish_id, str) or dish_id not in self.menu:
+                raise BadInput(f"đơn {customer['id']} có dish_id không hợp lệ")
+            recipe = self.menu[dish_id]["recipe"]
             reserved = recipe if customer.get("order_status") == "reserved" else {}
-            self.customers.append(dict(customer, reserved=customer.get("reserved", reserved).copy()))
+            self.customers.append(dict(customer, reserved=validate_items(customer.get("reserved", reserved))))
+        self._validate_orders()
         for e in self.customers:
             ids.reserve(e["id"])
         self.money = money
@@ -67,10 +73,55 @@ class QuanSim:
         by_id = {d["id"]: dict(d) for d in defaults}
         for u in updates:
             if u["id"] not in by_id:
-                from ..errors import BadInput
                 raise BadInput(f"id bếp/bàn không tồn tại: {u['id']}")
             by_id[u["id"]].update(u)
         return sort_by_id(list(by_id.values()))
+
+    def _validate_orders(self):
+        customers = {customer["id"]: customer for customer in self.customers}
+        for stove in self.stoves:
+            state = stove["state"]
+            if state not in ("idle", "cooking", "ready") or (state == "idle") != (stove["dish"] is None):
+                raise BadInput(f"trạng thái và món của bếp {stove['id']} mâu thuẫn")
+            for key in ("cook_ticks_left", "ready_ticks"):
+                if type(stove[key]) is not int or stove[key] < 0:
+                    raise BadInput(f"bếp {stove['id']} có {key} không hợp lệ")
+        dishes = [stove["dish"] for stove in self.stoves if stove["dish"] is not None]
+        if self.hand is not None:
+            dishes.append(self.hand)
+        assigned = set()
+        for dish in dishes:
+            if not isinstance(dish, dict) or not isinstance(dish.get("order_id"), str):
+                raise BadInput("món trên bếp/tay phải có order_id")
+            order_id = dish["order_id"]
+            customer = customers.get(order_id)
+            if (customer is None or customer.get("order_status") != "assigned"
+                    or order_id in assigned or dish.get("dish_id") != customer.get("dish_id")
+                    or type(dish.get("base_price")) is not int or dish["base_price"] <= 0):
+                raise BadInput(f"món trên bếp/tay mâu thuẫn với đơn {order_id}")
+            assigned.add(order_id)
+
+        available = self.stock.copy()
+        for order_id, customer in customers.items():
+            dish_id = customer.get("dish_id")
+            if self.allowed_dishes is not None and dish_id not in self.allowed_dishes:
+                raise BadInput(f"món {dish_id} của đơn {order_id} ngoài kế hoạch Ngày")
+            status = customer.get("order_status")
+            if status == "assigned" and order_id not in assigned:
+                raise BadInput(f"đơn assigned {order_id} phải có đúng một món trên bếp hoặc tay")
+            if customer.get("state") == "eating" and any(
+                type(customer.get(key)) is not int or customer[key] < 0
+                for key in ("base_price", "tip", "eat_ticks_left")
+            ):
+                raise BadInput(f"khách eating {order_id} cần base_price, tip và eat_ticks_left hợp lệ")
+            reserved = customer["reserved"]
+            expected = self.menu[dish_id]["recipe"] if status == "reserved" else {}
+            if reserved != expected:
+                raise BadInput(f"phần giữ của đơn {order_id} không khớp trạng thái hoặc công thức")
+            for kind, count in reserved.items():
+                available[kind] = available.get(kind, 0) - count
+                if available[kind] < 0:
+                    raise BadInput(f"phần giữ của đơn {order_id} vượt kho {kind}")
 
     def snapshot(self) -> dict:
         occupied = {c["table_id"]: c["id"] for c in self.customers}

@@ -26,10 +26,13 @@ def contract():
 
 
 def headless(*args):
-    cmd = [*shlex.split(contract()["headless_cmd"]), *args]
+    base = shlex.split(contract()["headless_cmd"])
+    cmd = [*base, *args]
+    if os.name == "nt" and base == ["python3", "-m", "chonoi.headless"]:
+        cmd[0] = sys.executable
     t0 = time.monotonic()
     p = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
-    shown = " ".join(rel(c) if os.path.isabs(c) else c for c in cmd)
+    shown = " ".join([base[0], *(rel(c) if os.path.isabs(c) else c for c in cmd[1:])])
     return p.returncode, p.stderr.strip(), time.monotonic() - t0, shown
 
 
